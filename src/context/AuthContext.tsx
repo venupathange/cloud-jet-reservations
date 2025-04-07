@@ -72,7 +72,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     // In a real application, we would save this to a database
-    users.push({ email, password, userType });
+    // Now always register as customer regardless of what's passed
+    users.push({ email, password, userType: "customer" });
     
     toast({
       title: 'Registration successful',

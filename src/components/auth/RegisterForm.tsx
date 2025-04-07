@@ -12,15 +12,12 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import { Plane } from "lucide-react";
 
 export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [userType, setUserType] = useState<"admin" | "customer">("customer");
   const [errors, setErrors] = useState<{ 
     email?: string; 
     password?: string;
@@ -63,7 +60,8 @@ export default function RegisterForm() {
     e.preventDefault();
     
     if (validateForm()) {
-      const success = register(email, password, userType);
+      // Always register as customer
+      const success = register(email, password, "customer");
       if (success) {
         navigate("/login");
       }
@@ -135,22 +133,6 @@ export default function RegisterForm() {
               {errors.confirmPassword && (
                 <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
               )}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                Account Type
-              </label>
-              <RadioGroup defaultValue="customer" value={userType} onValueChange={(value) => setUserType(value as "admin" | "customer")} className="flex space-x-4">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="customer" id="customer" />
-                  <Label htmlFor="customer">Customer</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="admin" id="admin" />
-                  <Label htmlFor="admin">Admin</Label>
-                </div>
-              </RadioGroup>
             </div>
             
             <Button type="submit" className="w-full bg-airline-blue hover:bg-airline-navy">
