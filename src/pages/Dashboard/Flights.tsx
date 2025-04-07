@@ -135,7 +135,7 @@ export default function FlightsPage() {
                         <span className="text-gray-500 ml-2">• Cloud Jet Airways</span>
                       </div>
                       <div className="font-bold text-xl text-airline-blue">
-                        ${flight.price}
+                        ₹{(flight.price * 83).toFixed(2)}
                       </div>
                     </div>
 

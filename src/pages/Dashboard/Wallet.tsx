@@ -82,7 +82,7 @@ export default function WalletPage() {
     
     toast({
       title: "Funds Added",
-      description: `$${parsedAmount.toFixed(2)} has been added to your wallet.`,
+      description: `₹${(parsedAmount * 83).toFixed(2)} has been added to your wallet.`,
     });
   };
 
@@ -110,7 +110,7 @@ export default function WalletPage() {
             <div className="space-y-2">
               <Label htmlFor="amount">Amount</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2">₹</span>
                 <Input
                   id="amount"
                   placeholder="0.00"

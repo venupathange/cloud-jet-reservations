@@ -185,7 +185,12 @@ export default function ReviewPage() {
                 <p className="text-gray-500">You haven't submitted any reviews yet.</p>
                 <Button 
                   className="mt-4 bg-airline-blue hover:bg-airline-navy"
-                  onClick={() => document.querySelector('[data-value="submit"]')?.click()}
+                  onClick={() => {
+                    const element = document.querySelector('[data-value="submit"]');
+                    if (element) {
+                      (element as HTMLElement).click();
+                    }
+                  }}
                 >
                   Submit a Review
                 </Button>

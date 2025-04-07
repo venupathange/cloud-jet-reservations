@@ -36,7 +36,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
         <div className="flex items-center justify-between p-4 bg-airline-blue/10 rounded-lg mb-6">
           <div>
             <p className="text-sm text-gray-500">Current Balance</p>
-            <h3 className="text-3xl font-bold">${balance.toFixed(2)}</h3>
+            <h3 className="text-3xl font-bold">₹{(balance * 83).toFixed(2)}</h3>
           </div>
           <CreditCard className="h-12 w-12 text-airline-blue opacity-70" />
         </div>
@@ -65,7 +65,7 @@ const WalletCard: React.FC<WalletCardProps> = ({
                 transaction.type === 'deposit' ? 'text-green-600' : 
                 'text-red-600'
               }`}>
-                {transaction.type === 'deposit' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                {transaction.type === 'deposit' ? '+' : '-'}₹{(transaction.amount * 83).toFixed(2)}
               </div>
             </div>
           )) : (

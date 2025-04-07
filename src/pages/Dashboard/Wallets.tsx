@@ -54,7 +54,7 @@ export default function WalletsPage() {
     
     toast({
       title: "Funds Added",
-      description: `$${amount} has been added to ${
+      description: `₹${(amount * 83).toFixed(2)} has been added to ${
         wallets.find(w => w.userId === userId)?.userName
       }'s wallet.`,
     });
@@ -104,7 +104,7 @@ export default function WalletsPage() {
                 <div className="flex items-center justify-between p-4 bg-airline-blue/10 rounded-lg mb-6">
                   <div>
                     <p className="text-sm text-gray-500">Balance</p>
-                    <h3 className="text-2xl font-bold">${wallet.balance.toFixed(2)}</h3>
+                    <h3 className="text-2xl font-bold">₹{(wallet.balance * 83).toFixed(2)}</h3>
                   </div>
                   <CreditCard className="h-10 w-10 text-airline-blue opacity-70" />
                 </div>
