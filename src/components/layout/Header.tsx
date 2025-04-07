@@ -26,7 +26,7 @@ export default function Header() {
           <Link to="/" className="text-sm font-medium hover:text-airline-blue">
             Home
           </Link>
-          <Link to="/flights" className="text-sm font-medium hover:text-airline-blue">
+          <Link to="/dashboard/flights" className="text-sm font-medium hover:text-airline-blue">
             Flights
           </Link>
           <Link to="/about" className="text-sm font-medium hover:text-airline-blue">

@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plane, CreditCard, Calendar, MessageSquare, Shield, CheckCircle2, Users, Globe, Heart } from "lucide-react";
@@ -9,9 +8,15 @@ export default function LandingPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-sky-100 to-white py-20 md:py-32">
-        <div className="container px-4 md:px-6">
+      {/* Hero Section - Fixed background with better styling */}
+      <section className="bg-gradient-to-b from-sky-100 to-white py-20 md:py-32 relative">
+        <div className="absolute inset-0 bg-cover bg-center z-0" 
+             style={{ 
+               backgroundImage: 'url("https://images.unsplash.com/photo-1559367183-975d410de28e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80")',
+               opacity: 0.15
+             }}>
+        </div>
+        <div className="container px-4 md:px-6 relative z-10">
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
             <div className="space-y-6">
               <div className="inline-block bg-airline-blue/10 text-airline-blue px-3 py-1 rounded-full font-medium text-sm mb-2">
@@ -323,17 +328,17 @@ export default function LandingPage() {
             <div>
               <h3 className="font-bold mb-4">Company</h3>
               <ul className="space-y-3">
-                <li><a href="#" className="text-gray-300 hover:text-white transition">About Us</a></li>
+                <li><Link to="/about" className="text-gray-300 hover:text-white transition">About Us</Link></li>
                 <li><a href="#" className="text-gray-300 hover:text-white transition">Careers</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition">Contact</a></li>
+                <li><Link to="/contact" className="text-gray-300 hover:text-white transition">Contact</Link></li>
                 <li><a href="#" className="text-gray-300 hover:text-white transition">Press</a></li>
               </ul>
             </div>
             <div>
               <h3 className="font-bold mb-4">Services</h3>
               <ul className="space-y-3">
-                <li><a href="#" className="text-gray-300 hover:text-white transition">Domestic Flights</a></li>
-                <li><a href="#" className="text-gray-300 hover:text-white transition">International Flights</a></li>
+                <li><Link to="/dashboard/flights" className="text-gray-300 hover:text-white transition">Domestic Flights</Link></li>
+                <li><Link to="/dashboard/flights" className="text-gray-300 hover:text-white transition">International Flights</Link></li>
                 <li><a href="#" className="text-gray-300 hover:text-white transition">Special Offers</a></li>
                 <li><a href="#" className="text-gray-300 hover:text-white transition">Gift Cards</a></li>
               </ul>
