@@ -14,6 +14,14 @@ import NotFound from "./pages/NotFound";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import DashboardOverview from "./pages/Dashboard/Overview";
 import FlightsPage from "./pages/Dashboard/Flights";
+import BookingsPage from "./pages/Dashboard/Bookings";
+import WalletsPage from "./pages/Dashboard/Wallets";
+import WalletPage from "./pages/Dashboard/Wallet";
+import AddAirplanePage from "./pages/Dashboard/AddAirplane";
+import AddAirportPage from "./pages/Dashboard/AddAirport";
+import ReviewsPage from "./pages/Dashboard/Reviews";
+import ReviewPage from "./pages/Dashboard/Review";
+import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +33,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<Index />} />
             <Route path="/login" element={<LoginForm />} />
             <Route path="/register" element={<RegisterForm />} />
             
@@ -33,14 +41,13 @@ const App = () => (
             <Route path="/dashboard" element={<DashboardLayout />}>
               <Route index element={<DashboardOverview />} />
               <Route path="flights" element={<FlightsPage />} />
-              {/* Add more dashboard routes below */}
-              <Route path="bookings" element={<div className="p-4">Bookings Content</div>} />
-              <Route path="wallets" element={<div className="p-4">Wallets Content</div>} />
-              <Route path="wallet" element={<div className="p-4">Wallet Content</div>} />
-              <Route path="add-airplane" element={<div className="p-4">Add Airplane Content</div>} />
-              <Route path="add-airport" element={<div className="p-4">Add Airport Content</div>} />
-              <Route path="reviews" element={<div className="p-4">Reviews Content</div>} />
-              <Route path="review" element={<div className="p-4">Review Content</div>} />
+              <Route path="bookings" element={<BookingsPage />} />
+              <Route path="wallets" element={<WalletsPage />} />
+              <Route path="wallet" element={<WalletPage />} />
+              <Route path="add-airplane" element={<AddAirplanePage />} />
+              <Route path="add-airport" element={<AddAirportPage />} />
+              <Route path="reviews" element={<ReviewsPage />} />
+              <Route path="review" element={<ReviewPage />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />

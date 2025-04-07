@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Plane, CreditCard, Calendar, MessageSquare } from "lucide-react";
+import { Plane, CreditCard, Calendar, MessageSquare, Shield, CheckCircle2 } from "lucide-react";
 import Header from "@/components/layout/Header";
 
 export default function LandingPage() {
@@ -10,7 +10,7 @@ export default function LandingPage() {
       <Header />
       
       {/* Hero Section */}
-      <section className="bg-gradient-sky py-16 md:py-24">
+      <section className="bg-gradient-to-b from-sky-100 to-white py-16 md:py-24">
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
             <div className="space-y-4">
@@ -80,6 +80,123 @@ export default function LandingPage() {
               </div>
               <h3 className="text-lg font-bold">24/7 Support</h3>
               <p className="text-center text-sm text-gray-500">Customer service available anytime</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Destinations Section */}
+      <section className="py-12 md:py-16 bg-gray-50">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Popular Destinations</h2>
+              <p className="text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                Discover our most sought-after flight destinations
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="relative group overflow-hidden rounded-xl">
+              <img 
+                src="https://images.unsplash.com/photo-1500673922987-e212871fec22?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80" 
+                alt="New York Skyline" 
+                className="w-full h-72 object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
+                <h3 className="text-xl font-bold text-white">New York</h3>
+                <p className="text-white/80">Flights from $299</p>
+                <Link to="/dashboard/flights" className="mt-3 text-white bg-airline-blue/80 hover:bg-airline-blue px-4 py-2 rounded-md inline-block text-sm">
+                  Explore Flights
+                </Link>
+              </div>
+            </div>
+            
+            <div className="relative group overflow-hidden rounded-xl">
+              <img 
+                src="https://images.unsplash.com/photo-1466442929976-97f336a657be?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80" 
+                alt="Dubai Cityscape" 
+                className="w-full h-72 object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
+                <h3 className="text-xl font-bold text-white">Dubai</h3>
+                <p className="text-white/80">Flights from $499</p>
+                <Link to="/dashboard/flights" className="mt-3 text-white bg-airline-blue/80 hover:bg-airline-blue px-4 py-2 rounded-md inline-block text-sm">
+                  Explore Flights
+                </Link>
+              </div>
+            </div>
+            
+            <div className="relative group overflow-hidden rounded-xl">
+              <img 
+                src="https://images.unsplash.com/photo-1517022812141-23620dba5c23?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80" 
+                alt="Swiss Alps" 
+                className="w-full h-72 object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
+                <h3 className="text-xl font-bold text-white">Switzerland</h3>
+                <p className="text-white/80">Flights from $399</p>
+                <Link to="/dashboard/flights" className="mt-3 text-white bg-airline-blue/80 hover:bg-airline-blue px-4 py-2 rounded-md inline-block text-sm">
+                  Explore Flights
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      {/* Why Choose Us Section */}
+      <section className="py-12 md:py-16 bg-white">
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center mb-8">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl">Why Choose Us</h2>
+              <p className="text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                We provide the best flight experience for our customers
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="flex flex-col space-y-6">
+              <div className="flex items-start space-x-4">
+                <div className="bg-airline-blue/10 p-2 rounded-md">
+                  <Shield className="h-6 w-6 text-airline-blue" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Safety First</h3>
+                  <p className="text-gray-500">Your safety is our top priority with rigorous maintenance protocols and highly trained staff.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-4">
+                <div className="bg-airline-blue/10 p-2 rounded-md">
+                  <CheckCircle2 className="h-6 w-6 text-airline-blue" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Best Price Guarantee</h3>
+                  <p className="text-gray-500">We offer competitive pricing and regular promotions to ensure you get the best value.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-4">
+                <div className="bg-airline-blue/10 p-2 rounded-md">
+                  <MessageSquare className="h-6 w-6 text-airline-blue" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold">Exceptional Customer Service</h3>
+                  <p className="text-gray-500">Our dedicated support team is available 24/7 to assist with any queries or concerns.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-center">
+              <img 
+                src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2000&q=80" 
+                alt="Customer service representative" 
+                className="rounded-xl shadow-lg max-h-96 object-cover"
+              />
             </div>
           </div>
         </div>
