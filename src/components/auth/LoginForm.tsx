@@ -45,8 +45,18 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh] px-4">
-      <Card className="w-full max-w-md shadow-lg">
+    <div className="min-h-screen bg-cover bg-center flex justify-center items-center px-4 py-12"
+         style={{ 
+           backgroundImage: 'url("https://images.unsplash.com/photo-1559367183-975d410de28e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80")',
+           backgroundSize: 'cover',
+           backgroundPosition: 'center',
+           backgroundRepeat: 'no-repeat',
+           position: 'relative'
+         }}>
+      {/* Dark overlay for better readability */}
+      <div className="absolute inset-0 bg-black opacity-60 z-0"></div>
+      
+      <Card className="w-full max-w-md shadow-2xl relative z-10 bg-white/90 backdrop-blur-sm">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
             <div className="bg-airline-blue p-3 rounded-full">
@@ -101,6 +111,29 @@ export default function LoginForm() {
               Sign In
             </Button>
           </form>
+          
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Quick Login</span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-3">
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={() => {
+                setEmail("user@example.com");
+                setPassword("password");
+              }}
+              className="w-full border-gray-300 hover:bg-gray-50"
+            >
+              Use Test Account (user@example.com)
+            </Button>
+          </div>
         </CardContent>
         <CardFooter>
           <p className="text-center text-sm text-gray-600 mt-2 w-full">

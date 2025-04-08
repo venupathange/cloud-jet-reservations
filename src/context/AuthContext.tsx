@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
 
 type UserType = 'admin' | 'customer' | null;
@@ -23,19 +23,29 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Mock user database - ensuring these users can login
-const users = [
+// Mock user database with persistent hardcoded users
+const defaultUsers = [
   { email: 'admin@gmail.com', password: 'admin123', userType: 'admin' as UserType },
   { email: 'user@123', password: 'user123', userType: 'customer' as UserType },
-  // Add a test user that's easier to remember
   { email: 'user@example.com', password: 'password', userType: 'customer' as UserType },
 ];
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [users, setUsers] = useState(() => {
+    // Get stored users from localStorage or use default users
+    const storedUsers = localStorage.getItem('users');
+    return storedUsers ? JSON.parse(storedUsers) : defaultUsers;
+  });
+  
   const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
+
+  // Save users to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('users', JSON.stringify(users));
+  }, [users]);
 
   const login = (email: string, password: string): boolean => {
     console.log("Login attempt:", email, password);
@@ -48,7 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     console.log("Found user:", foundUser);
 
     if (foundUser) {
-      const { password, ...userWithoutPassword } = foundUser;
+      const { password: _, ...userWithoutPassword } = foundUser;
       setUser(userWithoutPassword);
       localStorage.setItem('user', JSON.stringify(userWithoutPassword));
       toast({
@@ -78,9 +88,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return false;
     }
 
-    // In a real application, we would save this to a database
     // Always register as customer
-    users.push({ email, password, userType: "customer" });
+    const newUser = { email, password, userType: "customer" };
+    const updatedUsers = [...users, newUser];
+    setUsers(updatedUsers);
     
     toast({
       title: 'Registration successful',
