@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,18 +14,24 @@ import { Plane, Menu, User, LogOut } from "lucide-react";
 
 export default function Header() {
   const { user, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const handleHomeClick = (e) => {
+    e.preventDefault();
+    navigate('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
       <div className="container flex items-center justify-between h-16 px-4 md:px-6">
-        <Link to="/" className="flex items-center gap-2">
+        <a href="/" onClick={handleHomeClick} className="flex items-center gap-2">
           <Plane className="h-6 w-6 text-airline-blue" />
           <span className="font-bold text-xl text-airline-blue">Cloud Jet Services</span>
-        </Link>
+        </a>
         <nav className="hidden md:flex items-center gap-6">
-          <Link to="/" className="text-sm font-medium hover:text-airline-blue">
+          <a href="/" onClick={handleHomeClick} className="text-sm font-medium hover:text-airline-blue">
             Home
-          </Link>
+          </a>
           <Link to="/dashboard/flights" className="text-sm font-medium hover:text-airline-blue">
             Flights
           </Link>
@@ -49,10 +55,13 @@ export default function Header() {
                   {user?.email} <span className="text-xs capitalize text-gray-500">({user?.userType})</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link to="/dashboard" className="w-full flex">Dashboard</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={logout}>
+                <DropdownMenuItem onClick={() => {
+                  logout();
+                  navigate('/');
+                }}>
                   <LogOut className="mr-2 h-4 w-4" /> Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>

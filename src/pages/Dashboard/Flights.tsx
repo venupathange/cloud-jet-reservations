@@ -79,46 +79,66 @@ export default function FlightsPage() {
   );
 
   const handleBookNow = (flight: typeof MOCK_FLIGHTS[0]) => {
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "You must be logged in to book a flight.",
+        variant: "destructive"
+      });
+      navigate('/login');
+      return;
+    }
+    
     // Save the booking to local storage
-    const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-    
-    const newBooking = {
-      id: `BK-${Math.floor(Math.random() * 100000)}`,
-      flightId: flight.id,
-      userId: user?.email || 'anonymous',
-      userName: user?.email?.split('@')[0] || 'Guest User',
-      from: flight.from,
-      fromCode: flight.fromCode,
-      to: flight.to,
-      toCode: flight.toCode,
-      departureDate: flight.departureDate,
-      departureTime: flight.departureTime,
-      arrivalDate: flight.arrivalDate,
-      arrivalTime: flight.arrivalTime,
-      price: flight.price,
-      status: 'confirmed',
-      bookingDate: new Date().toISOString().split('T')[0]
-    };
-    
-    localStorage.setItem('bookings', JSON.stringify([...existingBookings, newBooking]));
-    
-    // Update seat availability
-    const updatedFlights = flights.map(f => {
-      if (f.id === flight.id) {
-        return { ...f, seatsAvailable: f.seatsAvailable - 1 };
-      }
-      return f;
-    });
-    
-    setFlights(updatedFlights);
-    
-    toast({
-      title: "Flight Booked Successfully!",
-      description: `Your booking for flight ${flight.id} from ${flight.from} to ${flight.to} has been confirmed.`,
-    });
-    
-    // Navigate to bookings page
-    navigate('/dashboard/bookings');
+    try {
+      const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+      
+      const newBooking = {
+        id: `BK-${Math.floor(Math.random() * 100000)}`,
+        flightId: flight.id,
+        userId: user?.email || 'anonymous',
+        userName: user?.email?.split('@')[0] || 'Guest User',
+        from: flight.from,
+        fromCode: flight.fromCode,
+        to: flight.to,
+        toCode: flight.toCode,
+        departureDate: flight.departureDate,
+        departureTime: flight.departureTime,
+        arrivalDate: flight.arrivalDate,
+        arrivalTime: flight.arrivalTime,
+        price: flight.price,
+        status: 'confirmed',
+        bookingDate: new Date().toISOString().split('T')[0]
+      };
+      
+      localStorage.setItem('bookings', JSON.stringify([...existingBookings, newBooking]));
+      
+      // Update seat availability
+      const updatedFlights = flights.map(f => {
+        if (f.id === flight.id) {
+          return { ...f, seatsAvailable: f.seatsAvailable - 1 };
+        }
+        return f;
+      });
+      
+      setFlights(updatedFlights);
+      
+      toast({
+        title: "Flight Booked Successfully!",
+        description: `Your booking for flight ${flight.id} from ${flight.from} to ${flight.to} has been confirmed.`,
+      });
+      
+      // Navigate to bookings page
+      navigate('/dashboard/bookings');
+    } catch (error) {
+      console.error("Error booking flight:", error);
+      toast({
+        title: "Booking Failed",
+        description: "There was an error processing your booking. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

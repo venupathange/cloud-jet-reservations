@@ -23,7 +23,7 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Mock user database
+// Mock user database - ensuring these users can login
 const users = [
   { email: 'admin@gmail.com', password: 'admin123', userType: 'admin' as UserType },
   { email: 'user@123', password: 'user123', userType: 'customer' as UserType },
@@ -39,10 +39,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (email: string, password: string): boolean => {
     console.log("Login attempt:", email, password);
-    console.log("Available users:", users);
     
+    // Find user with case-insensitive email comparison
     const foundUser = users.find(
-      (u) => u.email === email && u.password === password
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
     );
 
     console.log("Found user:", foundUser);
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = (email: string, password: string, userType: UserType): boolean => {
-    const existingUser = users.find((u) => u.email === email);
+    const existingUser = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
     
     if (existingUser) {
       toast({
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     // In a real application, we would save this to a database
-    // Now always register as customer regardless of what's passed
+    // Always register as customer
     users.push({ email, password, userType: "customer" });
     
     toast({
