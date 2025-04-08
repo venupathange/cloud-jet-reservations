@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plane, Search, Calendar, MapPin } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const MOCK_FLIGHTS = [
   {
@@ -64,6 +66,7 @@ const MOCK_FLIGHTS = [
 
 export default function FlightsPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = user?.userType === 'admin';
   const [searchTerm, setSearchTerm] = useState("");
   const [flights, setFlights] = useState(MOCK_FLIGHTS);
@@ -74,6 +77,49 @@ export default function FlightsPage() {
       flight.to.toLowerCase().includes(searchTerm.toLowerCase()) ||
       flight.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleBookNow = (flight: typeof MOCK_FLIGHTS[0]) => {
+    // Save the booking to local storage
+    const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+    
+    const newBooking = {
+      id: `BK-${Math.floor(Math.random() * 100000)}`,
+      flightId: flight.id,
+      userId: user?.email || 'anonymous',
+      userName: user?.email?.split('@')[0] || 'Guest User',
+      from: flight.from,
+      fromCode: flight.fromCode,
+      to: flight.to,
+      toCode: flight.toCode,
+      departureDate: flight.departureDate,
+      departureTime: flight.departureTime,
+      arrivalDate: flight.arrivalDate,
+      arrivalTime: flight.arrivalTime,
+      price: flight.price,
+      status: 'confirmed',
+      bookingDate: new Date().toISOString().split('T')[0]
+    };
+    
+    localStorage.setItem('bookings', JSON.stringify([...existingBookings, newBooking]));
+    
+    // Update seat availability
+    const updatedFlights = flights.map(f => {
+      if (f.id === flight.id) {
+        return { ...f, seatsAvailable: f.seatsAvailable - 1 };
+      }
+      return f;
+    });
+    
+    setFlights(updatedFlights);
+    
+    toast({
+      title: "Flight Booked Successfully!",
+      description: `Your booking for flight ${flight.id} from ${flight.from} to ${flight.to} has been confirmed.`,
+    });
+    
+    // Navigate to bookings page
+    navigate('/dashboard/bookings');
+  };
 
   return (
     <div className="space-y-6">
@@ -191,7 +237,13 @@ export default function FlightsPage() {
                         <Button variant="destructive" className="w-full">Delete</Button>
                       </div>
                     ) : (
-                      <Button className="w-full bg-airline-blue hover:bg-airline-navy">Book Now</Button>
+                      <Button 
+                        className="w-full bg-airline-blue hover:bg-airline-navy"
+                        onClick={() => handleBookNow(flight)}
+                        disabled={flight.seatsAvailable <= 0}
+                      >
+                        {flight.seatsAvailable > 0 ? "Book Now" : "Sold Out"}
+                      </Button>
                     )}
                   </div>
                 </div>

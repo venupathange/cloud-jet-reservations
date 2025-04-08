@@ -2,8 +2,9 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plane, Calendar, MapPin, User } from "lucide-react";
+import { Plane, Calendar, MapPin, User, Download } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/components/ui/use-toast";
 
 interface BookingProps {
   id: string;
@@ -51,6 +52,15 @@ const BookingCard: React.FC<BookingProps> = ({
     cancelled: "text-red-600 bg-red-100",
   }[status];
 
+  const handleDownloadPDF = () => {
+    // In a real application, we'd generate a PDF here
+    // For now, we'll just show a toast message
+    toast({
+      title: "Ticket Downloaded",
+      description: `Your ticket for flight ${flightId} has been downloaded successfully.`,
+    });
+  };
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition">
       <CardContent className="p-0">
@@ -66,7 +76,7 @@ const BookingCard: React.FC<BookingProps> = ({
                 </span>
               </div>
               <div className="font-bold text-xl text-airline-blue">
-                ${price}
+                ₹{(price * 83).toFixed(2)}
               </div>
             </div>
 
@@ -128,6 +138,16 @@ const BookingCard: React.FC<BookingProps> = ({
                 View Details
               </Button>
               
+              {status === 'confirmed' && (
+                <Button 
+                  variant="outline" 
+                  className="w-full flex items-center justify-center"
+                  onClick={handleDownloadPDF}
+                >
+                  <Download className="h-4 w-4 mr-2" /> Download Ticket
+                </Button>
+              )}
+              
               {status !== 'cancelled' && (
                 <Button 
                   variant="destructive" 
@@ -143,6 +163,6 @@ const BookingCard: React.FC<BookingProps> = ({
       </CardContent>
     </Card>
   );
-}
+};
 
 export default BookingCard;

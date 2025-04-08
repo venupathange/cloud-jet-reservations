@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { Search, Calendar } from "lucide-react";
 
-// Mock bookings data
-const MOCK_BOOKINGS = [
+// Default mock bookings if none in localStorage
+const DEFAULT_BOOKINGS = [
   {
     id: 'BK-12345',
     flightId: 'CJ-1245',
@@ -64,19 +64,59 @@ export default function BookingsPage() {
   const isAdmin = user?.userType === 'admin';
   
   const [searchTerm, setSearchTerm] = useState("");
-  const [bookings, setBookings] = useState(MOCK_BOOKINGS);
-  const [filteredBookings, setFilteredBookings] = useState(MOCK_BOOKINGS);
+  const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
 
+  // Load bookings from localStorage on component mount
   useEffect(() => {
-    // Filter bookings for customer view (only show their own bookings)
-    if (!isAdmin) {
-      setBookings(MOCK_BOOKINGS.filter(booking => 
-        booking.userId === 'user1' // Using 'user1' as current user for demo
-      ));
-    } else {
-      setBookings(MOCK_BOOKINGS);
+    try {
+      // Get bookings from localStorage or use default if none
+      const savedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+      
+      if (savedBookings && savedBookings.length > 0) {
+        console.log("Found bookings in localStorage:", savedBookings);
+        
+        if (isAdmin) {
+          // Admin sees all bookings
+          setBookings(savedBookings);
+        } else {
+          // Users only see their own bookings
+          const userBookings = savedBookings.filter(booking => 
+            booking.userId === user?.email
+          );
+          
+          if (userBookings.length > 0) {
+            setBookings(userBookings);
+          } else {
+            // If a user has no bookings yet, show a filtered version of the default bookings
+            // This is just for demo purposes
+            setBookings(DEFAULT_BOOKINGS.filter(booking => 
+              booking.userId === 'user1' // Using 'user1' as current user for demo
+            ));
+          }
+        }
+      } else {
+        // No bookings found in localStorage, use default bookings
+        if (!isAdmin) {
+          setBookings(DEFAULT_BOOKINGS.filter(booking => 
+            booking.userId === 'user1' // Using 'user1' as current user for demo
+          ));
+        } else {
+          setBookings(DEFAULT_BOOKINGS);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading bookings:", error);
+      // Fallback to default bookings
+      if (!isAdmin) {
+        setBookings(DEFAULT_BOOKINGS.filter(booking => 
+          booking.userId === 'user1'
+        ));
+      } else {
+        setBookings(DEFAULT_BOOKINGS);
+      }
     }
-  }, [isAdmin]);
+  }, [isAdmin, user?.email]);
 
   useEffect(() => {
     // Filter bookings based on search term
@@ -90,21 +130,38 @@ export default function BookingsPage() {
     setFilteredBookings(filtered);
   }, [searchTerm, bookings, isAdmin]);
 
-  const handleCancelBooking = (id: string) => {
-    // In a real app, this would make an API call
-    const updatedBookings = bookings.map(booking => 
-      booking.id === id ? { ...booking, status: 'cancelled' as const } : booking
-    );
-    
-    setBookings(updatedBookings);
-    
-    toast({
-      title: "Booking Cancelled",
-      description: `Booking ${id} has been cancelled successfully.`,
-    });
+  const handleCancelBooking = (id) => {
+    // Update booking status in localStorage
+    try {
+      const savedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+      const updatedBookings = savedBookings.map(booking => 
+        booking.id === id ? { ...booking, status: 'cancelled' } : booking
+      );
+      
+      localStorage.setItem('bookings', JSON.stringify(updatedBookings));
+      
+      // Also update the state
+      const newBookings = bookings.map(booking => 
+        booking.id === id ? { ...booking, status: 'cancelled' } : booking
+      );
+      
+      setBookings(newBookings);
+      
+      toast({
+        title: "Booking Cancelled",
+        description: `Booking ${id} has been cancelled successfully.`,
+      });
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      toast({
+        title: "Error",
+        description: "Failed to cancel booking. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleViewDetails = (id: string) => {
+  const handleViewDetails = (id) => {
     // In a real app, this would navigate to a details page or open a modal
     toast({
       title: "Booking Details",

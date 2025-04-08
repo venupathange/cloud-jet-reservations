@@ -27,6 +27,8 @@ interface AuthProviderProps {
 const users = [
   { email: 'admin@gmail.com', password: 'admin123', userType: 'admin' as UserType },
   { email: 'user@123', password: 'user123', userType: 'customer' as UserType },
+  // Add a test user that's easier to remember
+  { email: 'user@example.com', password: 'password', userType: 'customer' as UserType },
 ];
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
@@ -36,9 +38,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   const login = (email: string, password: string): boolean => {
+    console.log("Login attempt:", email, password);
+    console.log("Available users:", users);
+    
     const foundUser = users.find(
       (u) => u.email === email && u.password === password
     );
+
+    console.log("Found user:", foundUser);
 
     if (foundUser) {
       const { password, ...userWithoutPassword } = foundUser;
