@@ -26,6 +26,7 @@ import ReviewPage from "./pages/Dashboard/Review";
 import Index from "./pages/Index";
 import AddFlightPage from "./pages/Dashboard/AddFlight";
 import RoleGuard from "./components/auth/RoleGuard";
+import Profile from "./pages/Dashboard/Profile";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
               <Route index element={<DashboardOverview />} />
               <Route path="flights" element={<FlightsPage />} />
               <Route path="bookings" element={<BookingsPage />} />
+              <Route path="profile" element={<Profile />} />
               
               {/* Admin-only routes */}
               <Route element={<RoleGuard allowedRoles={['admin']} />}>

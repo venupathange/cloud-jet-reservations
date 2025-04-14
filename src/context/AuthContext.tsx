@@ -2,6 +2,7 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { generateToken, validateToken } from '@/utils/jwtUtils';
+import { UserProfile } from '@/types/user';
 
 type UserType = 'admin' | 'customer' | null;
 
@@ -12,12 +13,14 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  userProfile: UserProfile | null;
   login: (email: string, password: string) => boolean;
   register: (email: string, password: string, userType: UserType) => boolean;
   logout: () => void;
   isAuthenticated: boolean;
   getToken: () => string | null;
   checkRole: (role: UserType) => boolean;
+  updateUserProfile: (updatedProfile: Partial<UserProfile>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -55,10 +58,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return null;
   });
 
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(() => {
+    if (user) {
+      const storedProfile = localStorage.getItem(`userProfile_${user.email}`);
+      if (storedProfile) {
+        return JSON.parse(storedProfile);
+      }
+      return {
+        email: user.email,
+        userType: user.userType,
+      };
+    }
+    return null;
+  });
+
   // Save users to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('users', JSON.stringify(users));
   }, [users]);
+
+  // Save user profile to localStorage whenever it changes
+  useEffect(() => {
+    if (userProfile) {
+      localStorage.setItem(`userProfile_${userProfile.email}`, JSON.stringify(userProfile));
+    }
+  }, [userProfile]);
+
+  // Update userProfile when user changes
+  useEffect(() => {
+    if (user) {
+      const storedProfile = localStorage.getItem(`userProfile_${user.email}`);
+      if (storedProfile) {
+        setUserProfile(JSON.parse(storedProfile));
+      } else {
+        setUserProfile({
+          email: user.email,
+          userType: user.userType,
+        });
+      }
+    } else {
+      setUserProfile(null);
+    }
+  }, [user]);
 
   const login = (email: string, password: string): boolean => {
     console.log("Login attempt:", email, password);
@@ -120,6 +161,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    setUserProfile(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     toast({
@@ -136,16 +178,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return user?.userType === role;
   };
 
+  const updateUserProfile = (updatedProfile: Partial<UserProfile>) => {
+    if (userProfile) {
+      const newProfile = { ...userProfile, ...updatedProfile };
+      setUserProfile(newProfile);
+      toast({
+        title: 'Profile updated',
+        description: 'Your profile has been updated successfully.',
+      });
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
+        userProfile,
         login,
         register,
         logout,
         isAuthenticated: !!user,
         getToken,
         checkRole,
+        updateUserProfile,
       }}
     >
       {children}

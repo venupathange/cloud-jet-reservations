@@ -10,15 +10,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plane, Menu, User, LogOut } from "lucide-react";
+import { Plane, Menu, User, LogOut, UserCircle } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Header() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, userProfile, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleHomeClick = (e) => {
     e.preventDefault();
     navigate('/');
+  };
+
+  // Generate avatar fallback from email or display name
+  const getAvatarFallback = () => {
+    if (!userProfile) return 'U';
+    
+    if (userProfile.displayName) {
+      return userProfile.displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+    return userProfile.email.substring(0, 2).toUpperCase();
   };
 
   return (
@@ -46,17 +57,26 @@ export default function Header() {
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full flex items-center justify-center">
-                  <User className="h-4 w-4" />
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full flex items-center justify-center p-0">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={userProfile?.avatarUrl} />
+                    <AvatarFallback>{getAvatarFallback()}</AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>
-                  {user?.email} <span className="text-xs capitalize text-gray-500">({user?.userType})</span>
+                  {userProfile?.displayName || user?.email} 
+                  <span className="text-xs capitalize text-gray-500 ml-1">({user?.userType})</span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to="/dashboard" className="w-full flex">Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard/profile" className="w-full flex">
+                    <UserCircle className="mr-2 h-4 w-4" /> Profile
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => {
                   logout();
