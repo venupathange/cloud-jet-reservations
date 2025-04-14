@@ -29,7 +29,14 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Mock user database with persistent hardcoded users
+/**
+ * Mock user database with persistent hardcoded users
+ * 
+ * BACKEND INTEGRATION NOTE:
+ * - In production, replace this with API calls to your Spring Boot backend
+ * - The backend should handle authentication and return a JWT token
+ * - JWT token should contain user information including role (admin/customer)
+ */
 const defaultUsers = [
   { email: 'admin@gmail.com', password: 'admin123', userType: 'admin' as UserType },
   { email: 'user@123', password: 'user123', userType: 'customer' as UserType },
@@ -37,6 +44,13 @@ const defaultUsers = [
 ];
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Replace localStorage with proper JWT token storage
+   * - Consider using HttpOnly cookies for better security
+   * - Implement token refresh mechanism for expired tokens
+   * - Add token validation with your Spring Boot backend
+   */
   const [users, setUsers] = useState(() => {
     // Get stored users from localStorage or use default users
     const storedUsers = localStorage.getItem('users');
@@ -101,6 +115,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [user]);
 
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Replace with actual API call to Spring Boot backend
+   * - Use fetch or axios to make a POST request to /api/auth/login
+   * - Send email and password in request body
+   * - Handle JWT token received from backend
+   * - Parse token payload for user information
+   * - Store token securely for subsequent authenticated requests
+   * 
+   * @param email User's email address
+   * @param password User's password
+   * @returns boolean indicating success or failure
+   */
   const login = (email: string, password: string): boolean => {
     console.log("Login attempt:", email, password);
     
@@ -135,6 +162,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Replace with actual API call to Spring Boot backend
+   * - Use fetch or axios to make a POST request to /api/auth/register
+   * - Send user registration details in request body
+   * - Handle response from backend
+   * - Redirect to login or authenticate user after successful registration
+   * 
+   * @param email User's email address
+   * @param password User's password
+   * @param userType User's role type
+   * @returns boolean indicating success or failure
+   */
   const register = (email: string, password: string, userType: UserType): boolean => {
     const existingUser = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
     
@@ -159,6 +199,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return true;
   };
 
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Implement proper logout mechanism
+   * - Clear JWT token from storage
+   * - Make API call to backend to invalidate token if needed
+   * - Reset user state in the application
+   */
   const logout = () => {
     setUser(null);
     setUserProfile(null);
@@ -170,14 +217,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     });
   };
   
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Get JWT token from secure storage
+   * - Add token verification with the backend
+   * - Implement token refresh logic if needed
+   * 
+   * @returns JWT token string or null
+   */
   const getToken = (): string | null => {
     return localStorage.getItem('token');
   };
   
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - When integrated with Spring Security, roles should match backend roles
+   * - Verify that roles in JWT match what Spring Security expects
+   * - Ensure role naming convention is consistent between frontend and backend
+   * 
+   * @param role Role to check
+   * @returns boolean indicating if user has the role
+   */
   const checkRole = (role: UserType): boolean => {
     return user?.userType === role;
   };
 
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Replace with actual API call to Spring Boot backend
+   * - Use fetch or axios to make a PUT request to /api/users/profile
+   * - Send updated profile details in request body
+   * - Include JWT token in Authorization header
+   * - Handle response from backend
+   * 
+   * @param updatedProfile Updated profile information
+   */
   const updateUserProfile = (updatedProfile: Partial<UserProfile>) => {
     if (userProfile) {
       const newProfile = { ...userProfile, ...updatedProfile };

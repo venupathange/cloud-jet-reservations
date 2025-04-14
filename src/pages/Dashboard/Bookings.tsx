@@ -16,7 +16,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// Default mock bookings if none in localStorage
+/**
+ * BACKEND INTEGRATION NOTE:
+ * - This mock data will be replaced with API calls to Spring Boot backend
+ * - Implement proper error handling for API calls
+ * - Add loading states while fetching data
+ */
 const DEFAULT_BOOKINGS = [
   {
     id: 'BK-12345',
@@ -68,6 +73,12 @@ const DEFAULT_BOOKINGS = [
   }
 ];
 
+/**
+ * BACKEND INTEGRATION NOTE:
+ * - This interface should match the DTO from the Spring Boot backend
+ * - Ensure consistent naming convention between frontend and backend
+ * - Add validation rules matching backend validation
+ */
 interface BookingDetails {
   id: string;
   flightId: string;
@@ -96,7 +107,13 @@ export default function BookingsPage() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
 
-  // Load bookings from localStorage on component mount
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Replace with API call to Spring Boot backend
+   * - Use fetch or axios to make a GET request to /api/bookings
+   * - Include JWT token in Authorization header
+   * - Handle loading, error, and success states
+   */
   useEffect(() => {
     try {
       // Get bookings from localStorage or use default if none
@@ -107,12 +124,20 @@ export default function BookingsPage() {
         
         if (isAdmin) {
           // Admin sees all bookings
-          setBookings(savedBookings);
+          // Make sure we explicitly cast the status to the correct type
+          const typedBookings = savedBookings.map((booking: any) => ({
+            ...booking,
+            status: booking.status as 'confirmed' | 'pending' | 'cancelled'
+          }));
+          setBookings(typedBookings);
         } else {
           // Users only see their own bookings
-          const userBookings = savedBookings.filter(booking => 
-            booking.userId === user?.email
-          );
+          const userBookings = savedBookings
+            .filter((booking: any) => booking.userId === user?.email)
+            .map((booking: any) => ({
+              ...booking,
+              status: booking.status as 'confirmed' | 'pending' | 'cancelled'
+            }));
           
           if (userBookings.length > 0) {
             setBookings(userBookings);
@@ -159,11 +184,20 @@ export default function BookingsPage() {
     setFilteredBookings(filtered);
   }, [searchTerm, bookings, isAdmin]);
 
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Replace with API call to Spring Boot backend
+   * - Use fetch or axios to make a PUT request to /api/bookings/{id}
+   * - Include JWT token in Authorization header
+   * - Handle loading, error, and success states
+   * 
+   * @param id Booking ID to cancel
+   */
   const handleCancelBooking = (id: string) => {
     // Update booking status in localStorage
     try {
       const savedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-      const updatedBookings = savedBookings.map(booking => 
+      const updatedBookings = savedBookings.map((booking: any) => 
         booking.id === id ? { ...booking, status: 'cancelled' } : booking
       );
       
@@ -190,6 +224,14 @@ export default function BookingsPage() {
     }
   };
 
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Replace with API call to Spring Boot backend if needed
+   * - Use fetch or axios to make a GET request to /api/bookings/{id}
+   * - Include JWT token in Authorization header
+   * 
+   * @param id Booking ID to view details
+   */
   const handleViewDetails = (id: string) => {
     const booking = bookings.find(b => b.id === id);
     if (booking) {
@@ -198,6 +240,13 @@ export default function BookingsPage() {
     }
   };
   
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Could be enhanced to request PDF generation from backend
+   * - Alternative: backend could provide PDF endpoint that returns PDF data
+   * 
+   * @param booking Booking details for PDF generation
+   */
   const handleDownloadPDF = (booking: BookingDetails) => {
     generateBookingPDF(booking);
   };
@@ -213,6 +262,12 @@ export default function BookingsPage() {
         </p>
       </div>
 
+      {/* 
+        BACKEND INTEGRATION NOTE:
+        - Search implementation should be connected to backend search API
+        - Consider implementing server-side search for large datasets
+        - Add debouncing for search input to reduce API calls
+      */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1">
           <div className="relative">
@@ -236,6 +291,12 @@ export default function BookingsPage() {
         </div>
       </div>
 
+      {/* 
+        BACKEND INTEGRATION NOTE:
+        - This section displays booking data fetched from the API
+        - Implement proper loading states while fetching data
+        - Add error handling for failed API requests
+      */}
       <div className="space-y-4">
         {filteredBookings.length > 0 ? (
           filteredBookings.map((booking) => (
@@ -284,7 +345,14 @@ export default function BookingsPage() {
         )}
       </div>
       
-      {/* Booking Details Dialog */}
+      {/* 
+        Booking Details Dialog
+        
+        BACKEND INTEGRATION NOTE:
+        - This dialog displays detailed booking information
+        - Data should come from API response
+        - Consider adding loading state while fetching details
+      */}
       <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>

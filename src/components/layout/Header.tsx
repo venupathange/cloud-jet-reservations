@@ -13,6 +13,14 @@ import {
 import { Plane, Menu, User, LogOut, UserCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+/**
+ * Header component with navigation and user authentication status
+ * 
+ * BACKEND INTEGRATION NOTE:
+ * - This component displays user information from JWT token
+ * - Avatar and user display name come from profile API
+ * - Authentication status is determined by presence of valid JWT token
+ */
 export default function Header() {
   const { user, userProfile, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -22,7 +30,14 @@ export default function Header() {
     navigate('/');
   };
 
-  // Generate avatar fallback from email or display name
+  /**
+   * Generate avatar fallback from email or display name
+   * 
+   * BACKEND INTEGRATION NOTE:
+   * - Consider fetching user avatar from backend API
+   * - Implement proper image caching for avatars
+   * - Handle loading states while fetching user data
+   */
   const getAvatarFallback = () => {
     if (!userProfile) return 'U';
     
