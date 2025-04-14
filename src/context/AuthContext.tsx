@@ -1,6 +1,7 @@
 
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
+import { generateToken, validateToken } from '@/utils/jwtUtils';
 
 type UserType = 'admin' | 'customer' | null;
 
@@ -15,6 +16,8 @@ interface AuthContextType {
   register: (email: string, password: string, userType: UserType) => boolean;
   logout: () => void;
   isAuthenticated: boolean;
+  getToken: () => string | null;
+  checkRole: (role: UserType) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,8 +41,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
   
   const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    const token = localStorage.getItem('token');
+    if (token) {
+      const payload = validateToken(token);
+      if (payload) {
+        return { email: payload.email, userType: payload.userType };
+      } else {
+        // Token is invalid or expired
+        localStorage.removeItem('token');
+        return null;
+      }
+    }
+    return null;
   });
 
   // Save users to localStorage whenever they change
@@ -59,8 +72,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     if (foundUser) {
       const { password: _, ...userWithoutPassword } = foundUser;
+      
+      // Generate JWT token
+      const token = generateToken(foundUser.email, foundUser.userType);
+      localStorage.setItem('token', token);
+      
       setUser(userWithoutPassword);
-      localStorage.setItem('user', JSON.stringify(userWithoutPassword));
+      
       toast({
         title: 'Login successful',
         description: `Welcome back, ${email}!`,
@@ -102,11 +120,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
     toast({
       title: 'Logged out',
       description: 'You have been logged out successfully.',
     });
+  };
+  
+  const getToken = (): string | null => {
+    return localStorage.getItem('token');
+  };
+  
+  const checkRole = (role: UserType): boolean => {
+    return user?.userType === role;
   };
 
   return (
@@ -117,6 +144,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         register,
         logout,
         isAuthenticated: !!user,
+        getToken,
+        checkRole,
       }}
     >
       {children}

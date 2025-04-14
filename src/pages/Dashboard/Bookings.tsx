@@ -5,7 +5,16 @@ import BookingCard from "@/components/bookings/BookingCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
-import { Search, Calendar } from "lucide-react";
+import { Search, Calendar, FileText, Download } from "lucide-react";
+import { generateBookingPDF } from "@/utils/pdfUtils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Default mock bookings if none in localStorage
 const DEFAULT_BOOKINGS = [
@@ -59,13 +68,33 @@ const DEFAULT_BOOKINGS = [
   }
 ];
 
+interface BookingDetails {
+  id: string;
+  flightId: string;
+  userId: string;
+  userName: string;
+  from: string;
+  fromCode: string;
+  to: string;
+  toCode: string;
+  departureDate: string;
+  departureTime: string;
+  arrivalDate: string;
+  arrivalTime: string;
+  price: number;
+  status: 'confirmed' | 'pending' | 'cancelled';
+  bookingDate?: string;
+}
+
 export default function BookingsPage() {
   const { user } = useAuth();
   const isAdmin = user?.userType === 'admin';
   
   const [searchTerm, setSearchTerm] = useState("");
-  const [bookings, setBookings] = useState([]);
-  const [filteredBookings, setFilteredBookings] = useState([]);
+  const [bookings, setBookings] = useState<BookingDetails[]>([]);
+  const [filteredBookings, setFilteredBookings] = useState<BookingDetails[]>([]);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
 
   // Load bookings from localStorage on component mount
   useEffect(() => {
@@ -130,7 +159,7 @@ export default function BookingsPage() {
     setFilteredBookings(filtered);
   }, [searchTerm, bookings, isAdmin]);
 
-  const handleCancelBooking = (id) => {
+  const handleCancelBooking = (id: string) => {
     // Update booking status in localStorage
     try {
       const savedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
@@ -161,12 +190,16 @@ export default function BookingsPage() {
     }
   };
 
-  const handleViewDetails = (id) => {
-    // In a real app, this would navigate to a details page or open a modal
-    toast({
-      title: "Booking Details",
-      description: `Viewing details for booking ${id}`,
-    });
+  const handleViewDetails = (id: string) => {
+    const booking = bookings.find(b => b.id === id);
+    if (booking) {
+      setSelectedBooking(booking);
+      setIsDetailsDialogOpen(true);
+    }
+  };
+  
+  const handleDownloadPDF = (booking: BookingDetails) => {
+    generateBookingPDF(booking);
   };
 
   return (
@@ -208,9 +241,36 @@ export default function BookingsPage() {
           filteredBookings.map((booking) => (
             <BookingCard
               key={booking.id}
-              onCancel={handleCancelBooking}
-              onViewDetails={handleViewDetails}
+              onCancel={() => handleCancelBooking(booking.id)}
+              onViewDetails={() => handleViewDetails(booking.id)}
               {...booking}
+              // Add these props for the new buttons
+              extraButtons={
+                <div className="flex space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewDetails(booking.id);
+                    }}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Details
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDownloadPDF(booking);
+                    }}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    PDF
+                  </Button>
+                </div>
+              }
             />
           ))
         ) : (
@@ -223,6 +283,99 @@ export default function BookingsPage() {
           </div>
         )}
       </div>
+      
+      {/* Booking Details Dialog */}
+      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Booking Details</DialogTitle>
+            <DialogDescription>
+              View the details of your booking
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedBooking && (
+            <div className="space-y-4 py-4">
+              <div className="flex justify-between items-center pb-3 border-b">
+                <div>
+                  <h3 className="font-bold text-lg text-airline-blue">{selectedBooking.flightId}</h3>
+                  <p className="text-sm text-gray-500">Cloud Jet Airways</p>
+                </div>
+                <div className="px-3 py-1 rounded-full text-sm font-medium capitalize"
+                     style={{
+                       backgroundColor: selectedBooking.status === 'confirmed' ? 'rgba(16, 185, 129, 0.1)' : 
+                                        selectedBooking.status === 'pending' ? 'rgba(245, 158, 11, 0.1)' : 
+                                        'rgba(239, 68, 68, 0.1)',
+                       color: selectedBooking.status === 'confirmed' ? 'rgb(16, 185, 129)' : 
+                              selectedBooking.status === 'pending' ? 'rgb(245, 158, 11)' : 
+                              'rgb(239, 68, 68)'
+                     }}
+                >
+                  {selectedBooking.status}
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">From</h4>
+                  <p className="font-semibold">{selectedBooking.from} ({selectedBooking.fromCode})</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">To</h4>
+                  <p className="font-semibold">{selectedBooking.to} ({selectedBooking.toCode})</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Departure</h4>
+                  <p className="font-semibold">{selectedBooking.departureDate}</p>
+                  <p className="text-sm text-gray-500">{selectedBooking.departureTime}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-gray-500">Arrival</h4>
+                  <p className="font-semibold">{selectedBooking.arrivalDate}</p>
+                  <p className="text-sm text-gray-500">{selectedBooking.arrivalTime}</p>
+                </div>
+              </div>
+              
+              <div className="pt-3 border-t">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-medium text-gray-500">Booking ID</h4>
+                  <p className="font-semibold">{selectedBooking.id}</p>
+                </div>
+                {isAdmin && (
+                  <div className="flex justify-between items-center mt-2">
+                    <h4 className="text-sm font-medium text-gray-500">Customer</h4>
+                    <p className="font-semibold">{selectedBooking.userName}</p>
+                  </div>
+                )}
+                <div className="flex justify-between items-center mt-2">
+                  <h4 className="text-sm font-medium text-gray-500">Booking Date</h4>
+                  <p className="font-semibold">{selectedBooking.bookingDate || 'N/A'}</p>
+                </div>
+                <div className="flex justify-between items-center mt-2">
+                  <h4 className="text-sm font-medium text-gray-500">Total Price</h4>
+                  <p className="font-bold text-lg text-airline-blue">₹{(selectedBooking.price * 83).toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDetailsDialogOpen(false)}
+            >
+              Close
+            </Button>
+            <Button 
+              onClick={() => selectedBooking && handleDownloadPDF(selectedBooking)}
+              className="bg-airline-blue hover:bg-airline-navy"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download as PDF
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

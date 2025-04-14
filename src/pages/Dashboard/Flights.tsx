@@ -1,13 +1,21 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plane, Search, Calendar, MapPin } from "lucide-react";
+import { Plane, Search, Calendar, MapPin, AlertCircle } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const MOCK_FLIGHTS = [
   {
@@ -64,12 +72,50 @@ const MOCK_FLIGHTS = [
   },
 ];
 
+interface FlightData {
+  id: string;
+  from: string;
+  fromCode: string;
+  to: string;
+  toCode: string;
+  departureDate: string;
+  departureTime: string;
+  arrivalDate: string;
+  arrivalTime: string;
+  price: number;
+  seatsAvailable: number;
+}
+
 export default function FlightsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const isAdmin = user?.userType === 'admin';
   const [searchTerm, setSearchTerm] = useState("");
-  const [flights, setFlights] = useState(MOCK_FLIGHTS);
+  const [flights, setFlights] = useState<FlightData[]>([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [flightToDelete, setFlightToDelete] = useState<string | null>(null);
+  const [editingFlight, setEditingFlight] = useState<FlightData | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  // Load flights from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedFlights = JSON.parse(localStorage.getItem('flights') || '[]');
+      
+      if (savedFlights && savedFlights.length > 0) {
+        console.log("Found flights in localStorage:", savedFlights);
+        setFlights(savedFlights);
+      } else {
+        // No flights found in localStorage, use mock flights and save them
+        localStorage.setItem('flights', JSON.stringify(MOCK_FLIGHTS));
+        setFlights(MOCK_FLIGHTS);
+      }
+    } catch (error) {
+      console.error("Error loading flights:", error);
+      // Fallback to mock flights
+      setFlights(MOCK_FLIGHTS);
+    }
+  }, []);
 
   const filteredFlights = flights.filter(
     (flight) =>
@@ -78,7 +124,7 @@ export default function FlightsPage() {
       flight.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleBookNow = (flight: typeof MOCK_FLIGHTS[0]) => {
+  const handleBookNow = (flight: FlightData) => {
     // Check if user is authenticated
     if (!user) {
       toast({
@@ -123,6 +169,7 @@ export default function FlightsPage() {
       });
       
       setFlights(updatedFlights);
+      localStorage.setItem('flights', JSON.stringify(updatedFlights));
       
       toast({
         title: "Flight Booked Successfully!",
@@ -141,6 +188,82 @@ export default function FlightsPage() {
     }
   };
 
+  const handleEdit = (flight: FlightData) => {
+    setEditingFlight({ ...flight });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    
+    if (editingFlight) {
+      setEditingFlight(prev => ({
+        ...prev,
+        [name]: name === 'price' || name === 'seatsAvailable' ? 
+                parseFloat(value) || 0 : value
+      }));
+    }
+  };
+
+  const saveEditedFlight = () => {
+    if (!editingFlight) return;
+    
+    try {
+      const updatedFlights = flights.map(flight => 
+        flight.id === editingFlight.id ? editingFlight : flight
+      );
+      
+      setFlights(updatedFlights);
+      localStorage.setItem('flights', JSON.stringify(updatedFlights));
+      
+      toast({
+        title: "Flight Updated",
+        description: `Flight ${editingFlight.id} has been updated successfully.`,
+      });
+      
+      setIsEditDialogOpen(false);
+      setEditingFlight(null);
+    } catch (error) {
+      console.error("Error updating flight:", error);
+      toast({
+        title: "Update Failed",
+        description: "There was an error updating the flight. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const openDeleteDialog = (flightId: string) => {
+    setFlightToDelete(flightId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDelete = () => {
+    if (!flightToDelete) return;
+    
+    try {
+      const updatedFlights = flights.filter(flight => flight.id !== flightToDelete);
+      
+      setFlights(updatedFlights);
+      localStorage.setItem('flights', JSON.stringify(updatedFlights));
+      
+      toast({
+        title: "Flight Deleted",
+        description: `Flight ${flightToDelete} has been deleted successfully.`,
+      });
+      
+      setIsDeleteDialogOpen(false);
+      setFlightToDelete(null);
+    } catch (error) {
+      console.error("Error deleting flight:", error);
+      toast({
+        title: "Delete Failed",
+        description: "There was an error deleting the flight. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between">
@@ -153,7 +276,10 @@ export default function FlightsPage() {
           </p>
         </div>
         {isAdmin && (
-          <Button className="bg-airline-blue hover:bg-airline-navy">
+          <Button 
+            className="bg-airline-blue hover:bg-airline-navy"
+            onClick={() => navigate('/dashboard/add-flight')}
+          >
             <Plane className="mr-2 h-4 w-4" />
             Add New Flight
           </Button>
@@ -253,8 +379,20 @@ export default function FlightsPage() {
                     </div>
                     {isAdmin ? (
                       <div className="space-y-2">
-                        <Button variant="outline" className="w-full">Edit</Button>
-                        <Button variant="destructive" className="w-full">Delete</Button>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => handleEdit(flight)}
+                        >
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          className="w-full"
+                          onClick={() => openDeleteDialog(flight.id)}
+                        >
+                          Delete
+                        </Button>
                       </div>
                     ) : (
                       <Button 
@@ -278,6 +416,166 @@ export default function FlightsPage() {
           </div>
         )}
       </div>
+      
+      {/* Edit Flight Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[625px]">
+          <DialogHeader>
+            <DialogTitle>Edit Flight Details</DialogTitle>
+            <DialogDescription>
+              Update the details for flight {editingFlight?.id}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {editingFlight && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-from">Origin City</Label>
+                <Input
+                  id="edit-from"
+                  name="from"
+                  value={editingFlight.from}
+                  onChange={handleEditChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-fromCode">Origin Code</Label>
+                <Input
+                  id="edit-fromCode"
+                  name="fromCode"
+                  value={editingFlight.fromCode}
+                  onChange={handleEditChange}
+                  maxLength={3}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-to">Destination City</Label>
+                <Input
+                  id="edit-to"
+                  name="to"
+                  value={editingFlight.to}
+                  onChange={handleEditChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-toCode">Destination Code</Label>
+                <Input
+                  id="edit-toCode"
+                  name="toCode"
+                  value={editingFlight.toCode}
+                  onChange={handleEditChange}
+                  maxLength={3}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-departureDate">Departure Date</Label>
+                <Input
+                  id="edit-departureDate"
+                  name="departureDate"
+                  type="date"
+                  value={editingFlight.departureDate}
+                  onChange={handleEditChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-departureTime">Departure Time</Label>
+                <Input
+                  id="edit-departureTime"
+                  name="departureTime"
+                  type="time"
+                  value={editingFlight.departureTime}
+                  onChange={handleEditChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-arrivalDate">Arrival Date</Label>
+                <Input
+                  id="edit-arrivalDate"
+                  name="arrivalDate"
+                  type="date"
+                  value={editingFlight.arrivalDate}
+                  onChange={handleEditChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-arrivalTime">Arrival Time</Label>
+                <Input
+                  id="edit-arrivalTime"
+                  name="arrivalTime"
+                  type="time"
+                  value={editingFlight.arrivalTime}
+                  onChange={handleEditChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-price">Price (USD)</Label>
+                <Input
+                  id="edit-price"
+                  name="price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editingFlight.price}
+                  onChange={handleEditChange}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="edit-seatsAvailable">Seats Available</Label>
+                <Input
+                  id="edit-seatsAvailable"
+                  name="seatsAvailable"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={editingFlight.seatsAvailable}
+                  onChange={handleEditChange}
+                />
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={saveEditedFlight} className="bg-airline-blue hover:bg-airline-navy">
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+              Confirm Deletion
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete flight {flightToDelete}? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete Flight
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

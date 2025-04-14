@@ -24,6 +24,8 @@ import AddAirportPage from "./pages/Dashboard/AddAirport";
 import ReviewsPage from "./pages/Dashboard/Reviews";
 import ReviewPage from "./pages/Dashboard/Review";
 import Index from "./pages/Index";
+import AddFlightPage from "./pages/Dashboard/AddFlight";
+import RoleGuard from "./components/auth/RoleGuard";
 
 const queryClient = new QueryClient();
 
@@ -46,12 +48,21 @@ const App = () => (
               <Route index element={<DashboardOverview />} />
               <Route path="flights" element={<FlightsPage />} />
               <Route path="bookings" element={<BookingsPage />} />
-              <Route path="wallets" element={<WalletsPage />} />
-              <Route path="wallet" element={<WalletPage />} />
-              <Route path="add-airplane" element={<AddAirplanePage />} />
-              <Route path="add-airport" element={<AddAirportPage />} />
-              <Route path="reviews" element={<ReviewsPage />} />
-              <Route path="review" element={<ReviewPage />} />
+              
+              {/* Admin-only routes */}
+              <Route element={<RoleGuard allowedRoles={['admin']} />}>
+                <Route path="wallets" element={<WalletsPage />} />
+                <Route path="add-airplane" element={<AddAirplanePage />} />
+                <Route path="add-airport" element={<AddAirportPage />} />
+                <Route path="add-flight" element={<AddFlightPage />} />
+                <Route path="reviews" element={<ReviewsPage />} />
+              </Route>
+              
+              {/* Customer-only routes */}
+              <Route element={<RoleGuard allowedRoles={['customer']} />}>
+                <Route path="wallet" element={<WalletPage />} />
+                <Route path="review" element={<ReviewPage />} />
+              </Route>
             </Route>
             
             <Route path="*" element={<NotFound />} />

@@ -1,5 +1,5 @@
 
-import { Outlet, Navigate } from "react-router-dom";
+import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { 
   Plane, 
@@ -15,9 +15,10 @@ import Sidebar from "./Sidebar";
 
 export default function DashboardLayout() {
   const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   const adminNavItems = [
@@ -40,6 +41,11 @@ export default function DashboardLayout() {
       name: 'Add Airplanes', 
       path: '/dashboard/add-airplane', 
       icon: <PlusCircle className="h-5 w-5" /> 
+    },
+    { 
+      name: 'Add Flight', 
+      path: '/dashboard/add-flight', 
+      icon: <Plane className="h-5 w-5" /> 
     },
     { 
       name: 'Add Airport', 

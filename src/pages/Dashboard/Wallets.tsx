@@ -1,10 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Search, CreditCard } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
+import { User, Search } from "lucide-react";
 
 // Mock wallet data
 const MOCK_WALLETS = [
@@ -34,9 +32,36 @@ const MOCK_WALLETS = [
   }
 ];
 
+interface Wallet {
+  userId: string;
+  userName: string;
+  email: string;
+  balance: number;
+}
+
 export default function WalletsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [wallets, setWallets] = useState(MOCK_WALLETS);
+  const [wallets, setWallets] = useState<Wallet[]>([]);
+
+  // Load wallets from localStorage or use mock data
+  useEffect(() => {
+    try {
+      const savedWallets = JSON.parse(localStorage.getItem('wallets') || '[]');
+      
+      if (savedWallets && savedWallets.length > 0) {
+        console.log("Found wallets in localStorage:", savedWallets);
+        setWallets(savedWallets);
+      } else {
+        // No wallets in localStorage, use mock data and save it
+        localStorage.setItem('wallets', JSON.stringify(MOCK_WALLETS));
+        setWallets(MOCK_WALLETS);
+      }
+    } catch (error) {
+      console.error("Error loading wallets:", error);
+      // Fallback to mock data
+      setWallets(MOCK_WALLETS);
+    }
+  }, []);
 
   const filteredWallets = wallets.filter(
     (wallet) =>
@@ -44,36 +69,12 @@ export default function WalletsPage() {
       wallet.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddFunds = (userId: string, amount: number) => {
-    // In a real app, this would make an API call
-    const updatedWallets = wallets.map(wallet => 
-      wallet.userId === userId ? { ...wallet, balance: wallet.balance + amount } : wallet
-    );
-    
-    setWallets(updatedWallets);
-    
-    toast({
-      title: "Funds Added",
-      description: `₹${(amount * 83).toFixed(2)} has been added to ${
-        wallets.find(w => w.userId === userId)?.userName
-      }'s wallet.`,
-    });
-  };
-
-  const handleViewTransactions = (userId: string) => {
-    // In a real app, this would navigate to a details page or open a modal
-    toast({
-      title: "View Transactions",
-      description: `Viewing transactions for user ${userId}`,
-    });
-  };
-
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Customer Wallets</h1>
         <p className="text-gray-500">
-          Manage all customer wallet balances and transactions.
+          View all customer wallet balances.
         </p>
       </div>
 
@@ -101,34 +102,18 @@ export default function WalletsPage() {
                 <p className="text-sm text-gray-500">{wallet.email}</p>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="flex items-center justify-between p-4 bg-airline-blue/10 rounded-lg mb-6">
+                <div className="flex items-center justify-between p-4 bg-airline-blue/10 rounded-lg">
                   <div>
                     <p className="text-sm text-gray-500">Balance</p>
                     <h3 className="text-2xl font-bold">₹{(wallet.balance * 83).toFixed(2)}</h3>
                   </div>
-                  <CreditCard className="h-10 w-10 text-airline-blue opacity-70" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    variant="outline"
-                    onClick={() => handleViewTransactions(wallet.userId)}
-                  >
-                    Transactions
-                  </Button>
-                  <Button 
-                    className="bg-airline-blue hover:bg-airline-navy"
-                    onClick={() => handleAddFunds(wallet.userId, 100)}
-                  >
-                    Add Funds
-                  </Button>
                 </div>
               </CardContent>
             </Card>
           ))
         ) : (
           <div className="col-span-full text-center py-12">
-            <CreditCard className="h-12 w-12 mx-auto text-gray-300" />
+            <User className="h-12 w-12 mx-auto text-gray-300" />
             <h3 className="mt-4 text-lg font-medium">No wallets found</h3>
             <p className="mt-1 text-gray-500">Try adjusting your search terms</p>
           </div>
