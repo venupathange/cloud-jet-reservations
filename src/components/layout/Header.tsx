@@ -1,17 +1,14 @@
 
-// This component is read-only so we need to create a new component to wrap it
-// We'll add our theme toggle to this new component
 import React from 'react';
-import Header from '@/components/layout/Header';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { Link } from 'react-router-dom';
 
-export function HeaderWithTheme() {
+export function Header() {
   return (
-    <div className="flex items-center justify-between w-full">
-      <Header />
-      <div className="flex items-center mr-4">
-        <ThemeToggle />
-      </div>
+    <div className="flex items-center">
+      <Link to="/" className="text-xl font-bold text-primary">Cloud Jet Airways</Link>
     </div>
   );
 }
+
+// Export as default for backward compatibility
+export default Header;
