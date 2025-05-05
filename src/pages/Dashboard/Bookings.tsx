@@ -95,6 +95,16 @@ interface BookingDetails {
   price: number;
   status: 'confirmed' | 'pending' | 'cancelled';
   bookingDate?: string;
+  passengers?: PassengerInfo[];
+}
+
+interface PassengerInfo {
+  firstName: string;
+  lastName: string;
+  dateOfBirth?: string;
+  gender?: 'male' | 'female' | 'other';
+  passportNumber?: string;
+  specialRequests?: string;
 }
 
 export default function BookingsPage() {
@@ -106,6 +116,7 @@ export default function BookingsPage() {
   const [filteredBookings, setFilteredBookings] = useState<BookingDetails[]>([]);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
+  const [isPassengersDialogOpen, setIsPassengersDialogOpen] = useState(false);
 
   /**
    * BACKEND INTEGRATION NOTE:
@@ -297,6 +308,19 @@ export default function BookingsPage() {
       setIsDetailsDialogOpen(true);
     }
   };
+
+  /**
+   * Handle viewing passengers for a booking
+   *
+   * @param id Booking ID to view passengers
+   */
+  const handleViewPassengers = (id: string) => {
+    const booking = bookings.find(b => b.id === id);
+    if (booking) {
+      setSelectedBooking(booking);
+      setIsPassengersDialogOpen(true);
+    }
+  };
   
   /**
    * BACKEND INTEGRATION NOTE:
@@ -313,7 +337,7 @@ export default function BookingsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Your Bookings</h1>
-        <p className="text-gray-500">
+        <p className="text-gray-500 dark:text-gray-400">
           {isAdmin 
             ? 'Manage all customer bookings in the system.' 
             : 'View and manage your flight bookings.'}
@@ -329,7 +353,7 @@ export default function BookingsPage() {
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1">
           <div className="relative">
-            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
             <Input
               placeholder={isAdmin ? "Search by destination, flight number, or customer name..." : "Search by destination or flight number..."}
               className="pl-8"
@@ -396,7 +420,7 @@ export default function BookingsPage() {
           <div className="text-center py-12">
             <Calendar className="h-12 w-12 mx-auto text-gray-300" />
             <h3 className="mt-4 text-lg font-medium">No bookings found</h3>
-            <p className="mt-1 text-gray-500">
+            <p className="mt-1 text-gray-500 dark:text-gray-400">
               {searchTerm ? "Try adjusting your search terms" : "You haven't made any bookings yet"}
             </p>
           </div>
@@ -422,10 +446,10 @@ export default function BookingsPage() {
           
           {selectedBooking && (
             <div className="space-y-4 py-4">
-              <div className="flex justify-between items-center pb-3 border-b">
+              <div className="flex justify-between items-center pb-3 border-b dark:border-gray-700">
                 <div>
-                  <h3 className="font-bold text-lg text-airline-blue">{selectedBooking.flightId}</h3>
-                  <p className="text-sm text-gray-500">Cloud Jet Airways</p>
+                  <h3 className="font-bold text-lg text-airline-blue dark:text-airline-lightblue">{selectedBooking.flightId}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Cloud Jet Airways</p>
                 </div>
                 <div className="px-3 py-1 rounded-full text-sm font-medium capitalize"
                      style={{
@@ -443,43 +467,53 @@ export default function BookingsPage() {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500">From</h4>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">From</h4>
                   <p className="font-semibold">{selectedBooking.from} ({selectedBooking.fromCode})</p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500">To</h4>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">To</h4>
                   <p className="font-semibold">{selectedBooking.to} ({selectedBooking.toCode})</p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500">Departure</h4>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Departure</h4>
                   <p className="font-semibold">{selectedBooking.departureDate}</p>
-                  <p className="text-sm text-gray-500">{selectedBooking.departureTime}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{selectedBooking.departureTime}</p>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-gray-500">Arrival</h4>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Arrival</h4>
                   <p className="font-semibold">{selectedBooking.arrivalDate}</p>
-                  <p className="text-sm text-gray-500">{selectedBooking.arrivalTime}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{selectedBooking.arrivalTime}</p>
                 </div>
               </div>
               
-              <div className="pt-3 border-t">
+              <div className="pt-3 border-t dark:border-gray-700">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-medium text-gray-500">Booking ID</h4>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Booking ID</h4>
                   <p className="font-semibold">{selectedBooking.id}</p>
+                </div>
+                <div className="flex justify-between items-center mt-2">
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Passengers</h4>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleViewPassengers(selectedBooking.id)}
+                  >
+                    View Passengers
+                  </Button>
                 </div>
                 {isAdmin && (
                   <div className="flex justify-between items-center mt-2">
-                    <h4 className="text-sm font-medium text-gray-500">Customer</h4>
+                    <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Customer</h4>
                     <p className="font-semibold">{selectedBooking.userName}</p>
                   </div>
                 )}
                 <div className="flex justify-between items-center mt-2">
-                  <h4 className="text-sm font-medium text-gray-500">Booking Date</h4>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Booking Date</h4>
                   <p className="font-semibold">{selectedBooking.bookingDate || 'N/A'}</p>
                 </div>
                 <div className="flex justify-between items-center mt-2">
-                  <h4 className="text-sm font-medium text-gray-500">Total Price</h4>
-                  <p className="font-bold text-lg text-airline-blue">₹{(selectedBooking.price * 83).toFixed(2)}</p>
+                  <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Price</h4>
+                  <p className="font-bold text-lg text-airline-blue dark:text-airline-lightblue">₹{(selectedBooking.price * 83).toFixed(2)}</p>
                 </div>
               </div>
             </div>
@@ -498,6 +532,70 @@ export default function BookingsPage() {
             >
               <Download className="mr-2 h-4 w-4" />
               Download as PDF
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Passengers Dialog */}
+      <Dialog open={isPassengersDialogOpen} onOpenChange={setIsPassengersDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Passengers</DialogTitle>
+            <DialogDescription>
+              Passengers details for booking {selectedBooking?.id}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedBooking && (
+            <div className="space-y-4 py-4">
+              {selectedBooking.passengers && selectedBooking.passengers.length > 0 ? (
+                selectedBooking.passengers.map((passenger, index) => (
+                  <div key={index} className="p-4 border rounded-md dark:border-gray-700">
+                    <h4 className="font-medium mb-2">Passenger {index + 1}</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <p className="text-gray-500 dark:text-gray-400">Name</p>
+                        <p>{passenger.firstName} {passenger.lastName}</p>
+                      </div>
+                      {passenger.gender && (
+                        <div>
+                          <p className="text-gray-500 dark:text-gray-400">Gender</p>
+                          <p className="capitalize">{passenger.gender}</p>
+                        </div>
+                      )}
+                      {passenger.dateOfBirth && (
+                        <div>
+                          <p className="text-gray-500 dark:text-gray-400">Date of Birth</p>
+                          <p>{passenger.dateOfBirth}</p>
+                        </div>
+                      )}
+                      {passenger.passportNumber && (
+                        <div>
+                          <p className="text-gray-500 dark:text-gray-400">Passport Number</p>
+                          <p>{passenger.passportNumber}</p>
+                        </div>
+                      )}
+                      {passenger.specialRequests && (
+                        <div className="col-span-2">
+                          <p className="text-gray-500 dark:text-gray-400">Special Requests</p>
+                          <p>{passenger.specialRequests}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-4">
+                  <p className="text-gray-500 dark:text-gray-400">No passenger details available</p>
+                </div>
+              )}
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPassengersDialogOpen(false)}>
+              Close
             </Button>
           </DialogFooter>
         </DialogContent>

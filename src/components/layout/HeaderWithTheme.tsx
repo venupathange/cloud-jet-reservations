@@ -1,6 +1,4 @@
 
-// This component is read-only so we need to create a new component to wrap it
-// We'll add our theme toggle to this new component
 import React from 'react';
 import Header from '@/components/layout/Header';
 import { ThemeToggle } from '@/components/ui/theme-toggle';

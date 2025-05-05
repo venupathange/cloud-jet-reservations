@@ -8,9 +8,11 @@ import {
   MessageSquare,
   Users, 
   Building2, 
-  PlusCircle
+  PlusCircle,
+  Package,
+  BarChart
 } from "lucide-react";
-import Header from "./Header";
+import { HeaderWithTheme } from "./HeaderWithTheme";
 import Sidebar from "./Sidebar";
 
 export default function DashboardLayout() {
@@ -31,6 +33,16 @@ export default function DashboardLayout() {
       name: 'View Bookings', 
       path: '/dashboard/bookings', 
       icon: <Calendar className="h-5 w-5" /> 
+    },
+    {
+      name: 'Booking Statistics',
+      path: '/dashboard/booking-stats',
+      icon: <BarChart className="h-5 w-5" />
+    },
+    {
+      name: 'Travel Packages',
+      path: '/dashboard/packages',
+      icon: <Package className="h-5 w-5" />
     },
     { 
       name: 'Wallets', 
@@ -70,6 +82,16 @@ export default function DashboardLayout() {
       path: '/dashboard/bookings', 
       icon: <Calendar className="h-5 w-5" /> 
     },
+    {
+      name: 'Booking Statistics',
+      path: '/dashboard/booking-stats',
+      icon: <BarChart className="h-5 w-5" />
+    },
+    {
+      name: 'Travel Packages',
+      path: '/dashboard/packages',
+      icon: <Package className="h-5 w-5" />
+    },
     { 
       name: 'Wallet', 
       path: '/dashboard/wallet', 
@@ -86,7 +108,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <HeaderWithTheme />
       <div className="flex flex-1">
         <Sidebar items={navItems} />
         <div className="flex-1 p-6 md:p-8">
