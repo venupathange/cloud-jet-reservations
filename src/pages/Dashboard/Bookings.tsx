@@ -135,7 +135,7 @@ export default function BookingsPage() {
         
         if (isAdmin) {
           // Admin sees all bookings
-          // Make sure we explicitly type cast the status to the correct type
+          // Cast the status to the expected type
           const typedBookings = savedBookings.map((booking: any) => ({
             ...booking,
             status: booking.status as 'confirmed' | 'pending' | 'cancelled'

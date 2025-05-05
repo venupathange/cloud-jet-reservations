@@ -17,11 +17,11 @@ export function Header() {
   const { user, logout } = useAuth();
   
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center justify-between w-full">
       <Link to="/" className="text-xl font-bold text-primary">Cloud Jet Airways</Link>
       
       {user && (
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
