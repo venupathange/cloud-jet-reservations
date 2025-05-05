@@ -7,7 +7,7 @@ export function HeaderWithTheme() {
   return (
     <div className="flex items-center justify-between w-full">
       <Header />
-      <div className="flex items-center mr-4">
+      <div className="flex items-center">
         <ThemeToggle />
       </div>
     </div>

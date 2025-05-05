@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import BookingCard from "@/components/bookings/BookingCard";
@@ -134,7 +135,7 @@ export default function BookingsPage() {
         
         if (isAdmin) {
           // Admin sees all bookings
-          // Make sure we explicitly cast the status to the correct type
+          // Make sure we explicitly type cast the status to the correct type
           const typedBookings = savedBookings.map((booking: any) => ({
             ...booking,
             status: booking.status as 'confirmed' | 'pending' | 'cancelled'
