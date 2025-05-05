@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import WalletCard from "@/components/wallet/WalletCard";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -7,44 +7,80 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 
-// Mock transactions data
-const MOCK_TRANSACTIONS = [
-  {
-    id: "t1",
-    amount: 500,
-    type: "deposit" as const,
-    description: "Added funds",
-    date: "2025-06-02 14:30",
-  },
-  {
-    id: "t2",
-    amount: 430,
-    type: "payment" as const,
-    description: "Flight CJ-1245",
-    date: "2025-06-01 09:15",
-  },
-  {
-    id: "t3",
-    amount: 200,
-    type: "withdrawal" as const,
-    description: "Withdrawal to bank",
-    date: "2025-05-28 16:45",
-  },
-  {
-    id: "t4",
-    amount: 1000,
-    type: "deposit" as const,
-    description: "Added funds",
-    date: "2025-05-15 11:20",
-  },
-];
+/**
+ * BACKEND INTEGRATION NOTE:
+ * - Replace localStorage with API calls to your Spring Boot backend
+ * - Create endpoints for:
+ *   - GET /api/wallet (fetch current user wallet)
+ *   - POST /api/wallet/add-funds (add funds to wallet)
+ *   - GET /api/wallet/transactions (fetch transaction history)
+ * - Implement proper error handling and loading states
+ */
 
 export default function WalletPage() {
   const [balance, setBalance] = useState(2500.00);
-  const [transactions, setTransactions] = useState(MOCK_TRANSACTIONS);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [amount, setAmount] = useState("");
 
+  // Fetch wallet data from localStorage
+  useEffect(() => {
+    try {
+      const walletData = JSON.parse(localStorage.getItem('wallet') || '');
+      if (walletData) {
+        if (walletData.balance !== undefined) {
+          setBalance(walletData.balance);
+        }
+        if (walletData.transactions && Array.isArray(walletData.transactions)) {
+          setTransactions(walletData.transactions);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading wallet data:", error);
+      // If there's an error or no data, we'll use the default mock transactions
+      const mockTransactions = [
+        {
+          id: "t1",
+          amount: 500,
+          type: "deposit" as const,
+          description: "Added funds",
+          date: "2025-06-02 14:30",
+        },
+        {
+          id: "t2",
+          amount: 430,
+          type: "payment" as const,
+          description: "Flight CJ-1245",
+          date: "2025-06-01 09:15",
+        },
+        {
+          id: "t3",
+          amount: 200,
+          type: "withdrawal" as const,
+          description: "Withdrawal to bank",
+          date: "2025-05-28 16:45",
+        },
+        {
+          id: "t4",
+          amount: 1000,
+          type: "deposit" as const,
+          description: "Added funds",
+          date: "2025-05-15 11:20",
+        },
+      ];
+      setTransactions(mockTransactions);
+    }
+  }, []);
+
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Replace with API call to Spring Boot backend
+   * - Create a POST endpoint at /api/wallet/add-funds
+   * - Update wallet balance in the database
+   * - Record the transaction in transaction history
+   * 
+   * @param amount Amount to add to wallet
+   */
   const handleAddFunds = () => {
     const parsedAmount = parseFloat(amount);
     
@@ -75,7 +111,18 @@ export default function WalletPage() {
       }),
     };
     
-    setTransactions([newTransaction, ...transactions]);
+    const updatedTransactions = [newTransaction, ...transactions];
+    setTransactions(updatedTransactions);
+    
+    // Save to localStorage for persistence between refreshes
+    try {
+      localStorage.setItem('wallet', JSON.stringify({
+        balance: balance + parsedAmount,
+        transactions: updatedTransactions
+      }));
+    } catch (error) {
+      console.error("Error saving wallet data:", error);
+    }
     
     setIsDialogOpen(false);
     setAmount("");

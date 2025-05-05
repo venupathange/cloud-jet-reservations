@@ -194,6 +194,18 @@ export default function BookingsPage() {
    * @param id Booking ID to cancel
    */
   const handleCancelBooking = (id: string) => {
+    // Find the booking to cancel
+    const bookingToCancel = bookings.find(booking => booking.id === id);
+    
+    if (!bookingToCancel) {
+      toast({
+        title: "Error",
+        description: "Booking not found.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Update booking status in localStorage
     try {
       const savedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
@@ -210,9 +222,12 @@ export default function BookingsPage() {
       
       setBookings(newBookings);
       
+      // Process refund to wallet
+      processRefund(bookingToCancel);
+      
       toast({
         title: "Booking Cancelled",
-        description: `Booking ${id} has been cancelled successfully.`,
+        description: `Booking ${id} has been cancelled and ₹${(bookingToCancel.price * 83).toFixed(2)} has been refunded to your wallet.`,
       });
     } catch (error) {
       console.error("Error cancelling booking:", error);
@@ -221,6 +236,49 @@ export default function BookingsPage() {
         description: "Failed to cancel booking. Please try again.",
         variant: "destructive"
       });
+    }
+  };
+
+  /**
+   * BACKEND INTEGRATION NOTE:
+   * - Replace with API call to Spring Boot backend
+   * - Use fetch or axios to make a POST request to /api/wallet/refund
+   * - Include JWT token in Authorization header
+   * - Process refund on the backend to ensure data integrity
+   * 
+   * @param booking Booking details to process refund for
+   */
+  const processRefund = (booking: BookingDetails) => {
+    // Get current wallet from localStorage
+    try {
+      const walletInfo = JSON.parse(localStorage.getItem('wallet') || '{"balance": 2500}');
+      
+      // Add refund amount to wallet balance
+      const updatedWallet = {
+        balance: walletInfo.balance + booking.price,
+        transactions: [
+          {
+            id: `refund-${Date.now()}`,
+            amount: booking.price,
+            type: "deposit" as const,
+            description: `Refund for booking ${booking.id} (${booking.flightId})`,
+            date: new Date().toLocaleString('en-US', {
+              year: 'numeric', 
+              month: '2-digit', 
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
+          },
+          ...(walletInfo.transactions || [])
+        ]
+      };
+      
+      // Save updated wallet to localStorage
+      localStorage.setItem('wallet', JSON.stringify(updatedWallet));
+      
+    } catch (error) {
+      console.error("Error processing refund:", error);
     }
   };
 

@@ -128,11 +128,29 @@ export const useApiClient = () => {
     });
   };
 
+  /**
+   * Process booking cancellation and refund
+   * 
+   * BACKEND INTEGRATION NOTE:
+   * - This method should be implemented on the backend
+   * - The backend should handle the transaction as an atomic operation
+   * - Ensure proper error handling and transaction rollback in case of failure
+   * 
+   * @param bookingId ID of the booking to cancel
+   * @returns Promise with cancellation and refund result
+   */
+  const cancelBookingWithRefund = (bookingId: string) => {
+    return fetchWithAuth(`/bookings/${bookingId}/cancel`, {
+      method: 'POST'
+    });
+  };
+
   return {
     get,
     post,
     put,
-    delete: del
+    delete: del,
+    cancelBookingWithRefund
   };
 };
 
@@ -157,6 +175,16 @@ export const useApiClient = () => {
  *   try {
  *     const newBooking = await apiClient.post('/bookings', bookingData);
  *     console.log(newBooking);
+ *   } catch (error) {
+ *     console.error(error);
+ *   }
+ * };
+ * 
+ * // Cancel booking with refund
+ * const cancelMyBooking = async (bookingId) => {
+ *   try {
+ *     const result = await apiClient.cancelBookingWithRefund(bookingId);
+ *     console.log(result);
  *   } catch (error) {
  *     console.error(error);
  *   }

@@ -27,6 +27,7 @@ import Index from "./pages/Index";
 import AddFlightPage from "./pages/Dashboard/AddFlight";
 import RoleGuard from "./components/auth/RoleGuard";
 import Profile from "./pages/Dashboard/Profile";
+import ChatBot from "./components/chat/ChatBot";
 
 /**
  * BACKEND INTEGRATION NOTE:
@@ -115,6 +116,9 @@ const App = () => (
             
             <Route path="*" element={<NotFound />} />
           </Routes>
+          
+          {/* ChatBot is available on all pages */}
+          <ChatBot />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
