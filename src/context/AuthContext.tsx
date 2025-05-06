@@ -1,291 +1,191 @@
 
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { toast } from '@/components/ui/use-toast';
-import { generateToken, validateToken } from '@/utils/jwtUtils';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile } from '@/types/user';
 
-type UserType = 'admin' | 'customer' | null;
-
-interface User {
-  email: string;
-  userType: UserType;
-}
-
 interface AuthContextType {
-  user: User | null;
-  userProfile: UserProfile | null;
-  login: (email: string, password: string) => boolean;
-  register: (email: string, password: string, userType: UserType) => boolean;
-  logout: () => void;
+  user: UserProfile | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
+  logout: () => void;
   getToken: () => string | null;
-  checkRole: (role: UserType) => boolean;
-  updateUserProfile: (updatedProfile: Partial<UserProfile>) => void;
+  updateProfile: (profileData: Partial<UserProfile>) => Promise<void>;
+  isAdmin: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Create the Auth Context
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isAuthenticated: false,
+  isLoading: true,
+  login: async () => {},
+  register: async () => {},
+  logout: () => {},
+  getToken: () => null,
+  updateProfile: async () => {},
+  isAdmin: false
+});
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-/**
- * Mock user database with persistent hardcoded users
- * 
- * BACKEND INTEGRATION NOTE:
- * - In production, replace this with API calls to your Spring Boot backend
- * - The backend should handle authentication and return a JWT token
- * - JWT token should contain user information including role (admin/customer)
- */
-const defaultUsers = [
-  { email: 'admin@gmail.com', password: 'admin123', userType: 'admin' as UserType },
-  { email: 'user@123', password: 'user123', userType: 'customer' as UserType },
-  { email: 'user@example.com', password: 'password', userType: 'customer' as UserType },
-];
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  /**
-   * BACKEND INTEGRATION NOTE:
-   * - Replace localStorage with proper JWT token storage
-   * - Consider using HttpOnly cookies for better security
-   * - Implement token refresh mechanism for expired tokens
-   * - Add token validation with your Spring Boot backend
-   */
-  const [users, setUsers] = useState(() => {
-    // Get stored users from localStorage or use default users
-    const storedUsers = localStorage.getItem('users');
-    return storedUsers ? JSON.parse(storedUsers) : defaultUsers;
-  });
+// Create a provider component
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
-  const [user, setUser] = useState<User | null>(() => {
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
     const token = localStorage.getItem('token');
-    if (token) {
-      const payload = validateToken(token);
-      if (payload) {
-        return { email: payload.email, userType: payload.userType };
-      } else {
-        // Token is invalid or expired
+    
+    if (storedUser && token) {
+      try {
+        const userProfile = JSON.parse(storedUser) as UserProfile;
+        setUser(userProfile);
+      } catch (error) {
+        console.error('Failed to parse user data:', error);
+        setUser(null);
+        localStorage.removeItem('user');
         localStorage.removeItem('token');
-        return null;
       }
+    } else {
+      setUser(null);
     }
-    return null;
-  });
-
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(() => {
-    if (user) {
-      const storedProfile = localStorage.getItem(`userProfile_${user.email}`);
-      if (storedProfile) {
-        return JSON.parse(storedProfile);
-      }
-      return {
-        email: user.email,
-        userType: user.userType,
-      };
-    }
-    return null;
-  });
-
-  // Save users to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('users', JSON.stringify(users));
-  }, [users]);
-
-  // Save user profile to localStorage whenever it changes
-  useEffect(() => {
-    if (userProfile) {
-      localStorage.setItem(`userProfile_${userProfile.email}`, JSON.stringify(userProfile));
-    }
-  }, [userProfile]);
-
-  // Update userProfile when user changes
-  useEffect(() => {
-    if (user) {
-      const storedProfile = localStorage.getItem(`userProfile_${user.email}`);
-      if (storedProfile) {
-        setUserProfile(JSON.parse(storedProfile));
+    setIsLoading(false);
+  }, []);
+  
+  const login = async (email: string, password: string) => {
+    setIsLoading(true);
+    
+    try {
+      // Simulate API request delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // For demo purposes, check hardcoded credentials
+      if (email === 'admin@example.com' && password === 'admin123') {
+        const userProfile: UserProfile = {
+          email,
+          userType: 'admin',
+          displayName: 'Admin User',
+          phoneNumber: '+1234567890'
+        };
+        
+        // Store user data and token
+        localStorage.setItem('user', JSON.stringify(userProfile));
+        localStorage.setItem('token', 'demo-token-for-admin');
+        setUser(userProfile);
+        
+      } else if (email === 'user@example.com' && password === 'user123') {
+        const userProfile: UserProfile = {
+          email,
+          userType: 'customer',
+          displayName: 'John Doe',
+          firstName: 'John',
+          lastName: 'Doe',
+          phoneNumber: '+9876543210'
+        };
+        
+        // Store user data and token
+        localStorage.setItem('user', JSON.stringify(userProfile));
+        localStorage.setItem('token', 'demo-token-for-customer');
+        setUser(userProfile);
+        
       } else {
-        setUserProfile({
-          email: user.email,
-          userType: user.userType,
-        });
+        throw new Error('Invalid email or password');
       }
-    } else {
-      setUserProfile(null);
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-  }, [user]);
-
-  /**
-   * BACKEND INTEGRATION NOTE:
-   * - Replace with actual API call to Spring Boot backend
-   * - Use fetch or axios to make a POST request to /api/auth/login
-   * - Send email and password in request body
-   * - Handle JWT token received from backend
-   * - Parse token payload for user information
-   * - Store token securely for subsequent authenticated requests
-   * 
-   * @param email User's email address
-   * @param password User's password
-   * @returns boolean indicating success or failure
-   */
-  const login = (email: string, password: string): boolean => {
-    console.log("Login attempt:", email, password);
-    
-    // Find user with case-insensitive email comparison
-    const foundUser = users.find(
-      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-    );
-
-    console.log("Found user:", foundUser);
-
-    if (foundUser) {
-      const { password: _, ...userWithoutPassword } = foundUser;
-      
-      // Generate JWT token
-      const token = generateToken(foundUser.email, foundUser.userType);
-      localStorage.setItem('token', token);
-      
-      setUser(userWithoutPassword);
-      
-      toast({
-        title: 'Login successful',
-        description: `Welcome back, ${email}!`,
-      });
-      return true;
-    } else {
-      toast({
-        title: 'Login failed',
-        description: 'Invalid email or password.',
-        variant: 'destructive',
-      });
-      return false;
-    }
-  };
-
-  /**
-   * BACKEND INTEGRATION NOTE:
-   * - Replace with actual API call to Spring Boot backend
-   * - Use fetch or axios to make a POST request to /api/auth/register
-   * - Send user registration details in request body
-   * - Handle response from backend
-   * - Redirect to login or authenticate user after successful registration
-   * 
-   * @param email User's email address
-   * @param password User's password
-   * @param userType User's role type
-   * @returns boolean indicating success or failure
-   */
-  const register = (email: string, password: string, userType: UserType): boolean => {
-    const existingUser = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-    
-    if (existingUser) {
-      toast({
-        title: 'Registration failed',
-        description: 'This email is already registered.',
-        variant: 'destructive',
-      });
-      return false;
-    }
-
-    // Always register as customer
-    const newUser = { email, password, userType: "customer" };
-    const updatedUsers = [...users, newUser];
-    setUsers(updatedUsers);
-    
-    toast({
-      title: 'Registration successful',
-      description: 'You can now log in with your credentials.',
-    });
-    return true;
-  };
-
-  /**
-   * BACKEND INTEGRATION NOTE:
-   * - Implement proper logout mechanism
-   * - Clear JWT token from storage
-   * - Make API call to backend to invalidate token if needed
-   * - Reset user state in the application
-   */
-  const logout = () => {
-    setUser(null);
-    setUserProfile(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    toast({
-      title: 'Logged out',
-      description: 'You have been logged out successfully.',
-    });
   };
   
-  /**
-   * BACKEND INTEGRATION NOTE:
-   * - Get JWT token from secure storage
-   * - Add token verification with the backend
-   * - Implement token refresh logic if needed
-   * 
-   * @returns JWT token string or null
-   */
-  const getToken = (): string | null => {
+  const register = async (email: string, password: string) => {
+    setIsLoading(true);
+    
+    try {
+      // Simulate API request delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Create a new user profile
+      const userProfile: UserProfile = {
+        email,
+        userType: 'customer',
+        displayName: email.split('@')[0],
+        firstName: email.split('@')[0],
+        lastName: ''
+      };
+      
+      // Store user data and token
+      localStorage.setItem('user', JSON.stringify(userProfile));
+      localStorage.setItem('token', `demo-token-for-${email}`);
+      setUser(userProfile);
+      
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const logout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    setUser(null);
+  };
+  
+  const getToken = () => {
     return localStorage.getItem('token');
   };
   
-  /**
-   * BACKEND INTEGRATION NOTE:
-   * - When integrated with Spring Security, roles should match backend roles
-   * - Verify that roles in JWT match what Spring Security expects
-   * - Ensure role naming convention is consistent between frontend and backend
-   * 
-   * @param role Role to check
-   * @returns boolean indicating if user has the role
-   */
-  const checkRole = (role: UserType): boolean => {
-    return user?.userType === role;
-  };
-
-  /**
-   * BACKEND INTEGRATION NOTE:
-   * - Replace with actual API call to Spring Boot backend
-   * - Use fetch or axios to make a PUT request to /api/users/profile
-   * - Send updated profile details in request body
-   * - Include JWT token in Authorization header
-   * - Handle response from backend
-   * 
-   * @param updatedProfile Updated profile information
-   */
-  const updateUserProfile = (updatedProfile: Partial<UserProfile>) => {
-    if (userProfile) {
-      const newProfile = { ...userProfile, ...updatedProfile };
-      setUserProfile(newProfile);
-      toast({
-        title: 'Profile updated',
-        description: 'Your profile has been updated successfully.',
-      });
+  const updateProfile = async (profileData: Partial<UserProfile>) => {
+    setIsLoading(true);
+    
+    try {
+      // Simulate API request delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Get existing user data
+      const existingUser = user || JSON.parse(localStorage.getItem('user') || '{}');
+      
+      // Update user profile with new data
+      const updatedProfile: UserProfile = {
+        ...existingUser,
+        ...profileData
+      };
+      
+      // Store updated user data
+      localStorage.setItem('user', JSON.stringify(updatedProfile));
+      setUser(updatedProfile);
+      
+    } catch (error) {
+      console.error('Profile update error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
-
+  
+  const isAdmin = user?.userType === 'admin';
+  const isAuthenticated = !!user;
+  
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        userProfile,
-        login,
-        register,
-        logout,
-        isAuthenticated: !!user,
-        getToken,
-        checkRole,
-        updateUserProfile,
-      }}
-    >
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated, 
+      isLoading, 
+      login, 
+      register, 
+      logout, 
+      getToken,
+      updateProfile,
+      isAdmin
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+// Custom hook to use the Auth Context
+export const useAuth = () => useContext(AuthContext);

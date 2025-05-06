@@ -45,6 +45,13 @@ const FlightCard: React.FC<FlightCardProps> = (props) => {
   
   const availabilityStatus = getAvailabilityStatus();
 
+  // Get the correct class name for the progress indicator based on occupancy
+  const getProgressIndicatorClass = () => {
+    if (occupancyPercentage >= 90) return "bg-red-500";
+    if (occupancyPercentage >= 70) return "bg-amber-500"; 
+    return "bg-green-500";
+  };
+
   return (
     <>
       <Card className="overflow-hidden border-border hover:shadow-md transition-shadow duration-300 bg-card dark:bg-card-background">
@@ -122,12 +129,7 @@ const FlightCard: React.FC<FlightCardProps> = (props) => {
                 </div>
                 <Progress 
                   value={occupancyPercentage} 
-                  className="h-2" 
-                  indicatorClassName={
-                    occupancyPercentage >= 90 ? "bg-red-500" : 
-                    occupancyPercentage >= 70 ? "bg-amber-500" : 
-                    "bg-green-500"
-                  }
+                  className={`h-2 ${getProgressIndicatorClass()}`} 
                 />
               </div>
             </div>
