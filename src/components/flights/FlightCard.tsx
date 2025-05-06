@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, Plane } from "lucide-react";
+import { Calendar, Clock, Plane, Users } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import BookingDialog from '../bookings/BookingDialog';
+import { Progress } from "@/components/ui/progress";
 
 interface FlightCardProps {
   id: string;
@@ -27,18 +28,34 @@ const FlightCard: React.FC<FlightCardProps> = (props) => {
   const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
 
   const formattedPrice = (props.price * 83).toFixed(2); // Convert to INR
+  
+  // Calculate occupancy percentage for progress bar
+  const occupancyPercentage = Math.round(((props.capacity - props.availableSeats) / props.capacity) * 100);
+  
+  // Determine availability status and color
+  const getAvailabilityStatus = () => {
+    if (props.availableSeats <= 0) {
+      return { text: "Sold Out", color: "text-red-600 dark:text-red-400" };
+    } else if (props.availableSeats < 5) {
+      return { text: "Few Seats Left", color: "text-amber-600 dark:text-amber-400" };
+    } else {
+      return { text: "Available", color: "text-green-600 dark:text-green-400" };
+    }
+  };
+  
+  const availabilityStatus = getAvailabilityStatus();
 
   return (
     <>
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden border-border hover:shadow-md transition-shadow duration-300 bg-card dark:bg-card-background">
         <CardContent className="p-0">
           <div className="bg-primary/10 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <Plane className="h-5 w-5 text-primary" />
+                <Plane className="h-5 w-5 text-primary-color" />
                 <span className="font-bold">{props.id}</span>
               </div>
-              <span className="text-lg font-bold">₹{formattedPrice}</span>
+              <span className="text-lg font-bold text-primary-color">₹{formattedPrice}</span>
             </div>
           </div>
 
@@ -93,16 +110,32 @@ const FlightCard: React.FC<FlightCardProps> = (props) => {
                 <p className="text-sm text-muted-foreground">Aircraft</p>
                 <p className="text-sm">{props.aircraft || 'Boeing 737'}</p>
               </div>
-              <div className="flex justify-between items-center">
-                <p className="text-sm text-muted-foreground">Available Seats</p>
-                <p className="text-sm font-medium">{props.availableSeats}/{props.capacity}</p>
+              <div className="mt-3">
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center">
+                    <Users className="h-4 w-4 mr-1 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Seats</p>
+                  </div>
+                  <p className={`text-sm font-medium ${availabilityStatus.color}`}>
+                    {availabilityStatus.text} ({props.availableSeats}/{props.capacity})
+                  </p>
+                </div>
+                <Progress 
+                  value={occupancyPercentage} 
+                  className="h-2" 
+                  indicatorClassName={
+                    occupancyPercentage >= 90 ? "bg-red-500" : 
+                    occupancyPercentage >= 70 ? "bg-amber-500" : 
+                    "bg-green-500"
+                  }
+                />
               </div>
             </div>
           </div>
         </CardContent>
         <CardFooter className="bg-muted/50 p-4">
           <Button 
-            className="w-full" 
+            className="w-full bg-primary-color hover:bg-primary-color/90" 
             onClick={() => setIsBookingDialogOpen(true)}
             disabled={!isAuthenticated || props.availableSeats <= 0}
           >

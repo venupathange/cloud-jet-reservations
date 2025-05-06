@@ -38,11 +38,13 @@ const BookingDialog: React.FC<BookingDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[650px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Book Flight {flightId}</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-primary-color">
+            Book Flight {flightId} - {flightDetails.fromCode} to {flightDetails.toCode}
+          </DialogTitle>
           <DialogDescription>
-            Enter passenger details to complete your booking
+            Book for up to 6 passengers - provide complete details for each passenger
           </DialogDescription>
         </DialogHeader>
         
