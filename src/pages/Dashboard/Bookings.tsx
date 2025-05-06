@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import BookingCard from "@/components/bookings/BookingCard";
@@ -138,8 +137,9 @@ export default function BookingsPage() {
           // Ensure status is properly typed
           const typedBookings = savedBookings.map((booking: any) => ({
             ...booking,
-            status: (booking.status as 'confirmed' | 'pending' | 'cancelled') || 'pending'
-          }));
+            status: (booking.status as 'confirmed' | 'pending' | 'cancelled')
+          })) as BookingDetails[];
+          
           setBookings(typedBookings);
         } else {
           // Users only see their own bookings
@@ -147,8 +147,8 @@ export default function BookingsPage() {
             .filter((booking: any) => booking.userId === user?.email)
             .map((booking: any) => ({
               ...booking,
-              status: (booking.status as 'confirmed' | 'pending' | 'cancelled') || 'pending'
-            }));
+              status: (booking.status as 'confirmed' | 'pending' | 'cancelled')
+            })) as BookingDetails[];
           
           if (userBookings.length > 0) {
             setBookings(userBookings);

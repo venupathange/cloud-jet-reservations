@@ -7,11 +7,14 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, userType?: string) => Promise<boolean>;
   logout: () => void;
   getToken: () => string | null;
   updateProfile: (profileData: Partial<UserProfile>) => Promise<void>;
   isAdmin: boolean;
+  checkRole: (role: string) => boolean;
+  userProfile: UserProfile | null;
+  updateUserProfile: (profileData: Partial<UserProfile>) => Promise<void>;
 }
 
 // Create the Auth Context
@@ -20,11 +23,14 @@ export const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   login: async () => {},
-  register: async () => {},
+  register: async () => false,
   logout: () => {},
   getToken: () => null,
   updateProfile: async () => {},
-  isAdmin: false
+  isAdmin: false,
+  checkRole: () => false,
+  userProfile: null,
+  updateUserProfile: async () => {}
 });
 
 // Create a provider component
@@ -100,7 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
   
-  const register = async (email: string, password: string) => {
+  const register = async (email: string, password: string, userType: string = 'customer'): Promise<boolean> => {
     setIsLoading(true);
     
     try {
@@ -110,7 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Create a new user profile
       const userProfile: UserProfile = {
         email,
-        userType: 'customer',
+        userType: userType as 'admin' | 'customer' | null,
         displayName: email.split('@')[0],
         firstName: email.split('@')[0],
         lastName: ''
@@ -120,10 +126,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('user', JSON.stringify(userProfile));
       localStorage.setItem('token', `demo-token-for-${email}`);
       setUser(userProfile);
+      return true;
       
     } catch (error) {
       console.error('Registration error:', error);
-      throw error;
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -166,9 +173,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
     }
   };
+
+  // Added function to check user role
+  const checkRole = (role: string) => {
+    return user?.userType === role;
+  };
   
   const isAdmin = user?.userType === 'admin';
   const isAuthenticated = !!user;
+
+  // Alias for the Profile page
+  const userProfile = user;
+  const updateUserProfile = updateProfile;
   
   return (
     <AuthContext.Provider value={{ 
@@ -180,7 +196,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       logout, 
       getToken,
       updateProfile,
-      isAdmin
+      isAdmin,
+      checkRole,
+      userProfile,
+      updateUserProfile
     }}>
       {children}
     </AuthContext.Provider>

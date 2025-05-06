@@ -7,8 +7,14 @@ import { useAuth } from '@/context/AuthContext';
 interface UseBookingFormProps {
   flightId: string;
   flightDetails: {
+    from: string;
     fromCode: string;
+    to: string;
     toCode: string;
+    departureDate: string;
+    departureTime: string;
+    arrivalDate: string;
+    arrivalTime: string;
     price: number;
   };
   onBookingComplete: () => void;
