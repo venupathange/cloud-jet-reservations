@@ -19,7 +19,7 @@ export function HeaderWithTheme() {
   const { user, logout } = useAuth();
   
   return (
-    <div className="flex items-center justify-between w-full theme-transition">
+    <div className="flex items-center justify-between w-full">
       <Header />
       <div className="flex items-center gap-4">
         <ThemeToggle />
@@ -57,7 +57,7 @@ export function HeaderWithTheme() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-600 dark:text-red-400">
+              <DropdownMenuItem onClick={logout} className="cursor-pointer text-red-600">
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
               </DropdownMenuItem>
