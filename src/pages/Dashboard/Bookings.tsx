@@ -138,7 +138,7 @@ export default function BookingsPage() {
           // Cast the status to the expected type
           const typedBookings = savedBookings.map((booking: any) => ({
             ...booking,
-            status: booking.status as 'confirmed' | 'pending' | 'cancelled'
+            status: (booking.status as 'confirmed' | 'pending' | 'cancelled') || 'pending'
           }));
           setBookings(typedBookings);
         } else {
@@ -147,7 +147,7 @@ export default function BookingsPage() {
             .filter((booking: any) => booking.userId === user?.email)
             .map((booking: any) => ({
               ...booking,
-              status: booking.status as 'confirmed' | 'pending' | 'cancelled'
+              status: (booking.status as 'confirmed' | 'pending' | 'cancelled') || 'pending'
             }));
           
           if (userBookings.length > 0) {
