@@ -37,7 +37,7 @@ export function ThemeProvider({
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
-
+    
     if (theme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
@@ -45,11 +45,13 @@ export function ThemeProvider({
         : "light";
       
       root.classList.add(systemTheme);
+      root.setAttribute("data-theme", systemTheme);
       setResolvedTheme(systemTheme);
       return;
     }
 
     root.classList.add(theme);
+    root.setAttribute("data-theme", theme);
     setResolvedTheme(theme as "dark" | "light");
   }, [theme]);
 
@@ -63,6 +65,7 @@ export function ThemeProvider({
         const root = window.document.documentElement;
         root.classList.remove("light", "dark");
         root.classList.add(newSystemTheme);
+        root.setAttribute("data-theme", newSystemTheme);
         setResolvedTheme(newSystemTheme);
       };
       

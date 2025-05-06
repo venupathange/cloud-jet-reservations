@@ -19,14 +19,14 @@ export function HeaderWithTheme() {
   const { user, logout } = useAuth();
   
   return (
-    <div className="flex items-center justify-between w-full">
+    <div className="flex items-center justify-between w-full theme-transition">
       <Header />
       <div className="flex items-center gap-4">
         <ThemeToggle />
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar>
                   <AvatarFallback className="bg-primary/10">
                     {user.email ? user.email.charAt(0).toUpperCase() : 'U'}
