@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import BookingCard from "@/components/bookings/BookingCard";
@@ -134,21 +135,35 @@ export default function BookingsPage() {
         
         if (isAdmin) {
           // Admin sees all bookings
-          // Ensure status is properly typed
-          const typedBookings = savedBookings.map((booking: any) => ({
-            ...booking,
-            status: (booking.status as 'confirmed' | 'pending' | 'cancelled')
-          })) as BookingDetails[];
+          // Ensure status is properly typed by validating and converting it
+          const typedBookings = savedBookings.map((booking: any) => {
+            // Validate that status is one of the allowed values, or default to 'pending'
+            const validStatus = ['confirmed', 'pending', 'cancelled'].includes(booking.status) 
+              ? (booking.status as 'confirmed' | 'pending' | 'cancelled') 
+              : 'pending';
+              
+            return {
+              ...booking,
+              status: validStatus
+            };
+          }) as BookingDetails[];
           
           setBookings(typedBookings);
         } else {
           // Users only see their own bookings
           const userBookings = savedBookings
             .filter((booking: any) => booking.userId === user?.email)
-            .map((booking: any) => ({
-              ...booking,
-              status: (booking.status as 'confirmed' | 'pending' | 'cancelled')
-            })) as BookingDetails[];
+            .map((booking: any) => {
+              // Validate status the same way for user bookings
+              const validStatus = ['confirmed', 'pending', 'cancelled'].includes(booking.status)
+                ? (booking.status as 'confirmed' | 'pending' | 'cancelled')
+                : 'pending';
+                
+              return {
+                ...booking,
+                status: validStatus
+              };
+            }) as BookingDetails[];
           
           if (userBookings.length > 0) {
             setBookings(userBookings);
@@ -228,7 +243,7 @@ export default function BookingsPage() {
       
       // Also update the state
       const newBookings = bookings.map(booking => 
-        booking.id === id ? { ...booking, status: 'cancelled' } : booking
+        booking.id === id ? { ...booking, status: 'cancelled' as const } : booking
       );
       
       setBookings(newBookings);
