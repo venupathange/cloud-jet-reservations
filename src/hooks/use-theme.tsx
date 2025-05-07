@@ -1,5 +1,5 @@
 
-import { createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect } from "react";
 
 type Theme = "light" | "system";
 
@@ -38,7 +38,7 @@ export function ThemeProvider({
   };
 
   // Apply light theme CSS variables
-  React.useEffect(() => {
+  useEffect(() => {
     const root = window.document.documentElement;
     
     // Remove dark class if present and ensure light is applied
