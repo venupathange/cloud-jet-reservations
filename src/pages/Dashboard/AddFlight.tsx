@@ -24,7 +24,7 @@ interface FlightFormData {
 }
 
 export default function AddFlightPage() {
-  const { isAdmin } = useAuth();
+  const { checkRole } = useAuth();
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState<FlightFormData>({
@@ -44,7 +44,7 @@ export default function AddFlightPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Redirect if user is not an admin
-  if (!isAdmin) {
+  if (!checkRole('admin')) {
     navigate('/dashboard');
     return null;
   }

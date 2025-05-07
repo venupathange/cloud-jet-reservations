@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -60,7 +61,7 @@ export default function RegisterForm() {
     
     if (validateForm()) {
       // Always register as customer
-      const success = register(email, password);
+      const success = register(email, password, "customer");
       if (success) {
         navigate("/login");
       }

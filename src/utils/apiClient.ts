@@ -145,96 +145,14 @@ export const useApiClient = () => {
     });
   };
 
-  /**
-   * Book a flight for multiple passengers
-   * 
-   * BACKEND INTEGRATION NOTE:
-   * - This method should be implemented on the backend
-   * - Multiple passengers will be booked under one user account
-   * - Ensure proper validation and error handling on backend
-   * 
-   * @param flightId ID of the flight to book
-   * @param passengers Array of passenger details
-   * @returns Promise with booking confirmation
-   */
-  const bookFlightForMultiplePassengers = (flightId: string, passengers: PassengerDetails[]) => {
-    return fetchWithAuth(`/bookings`, {
-      method: 'POST',
-      body: JSON.stringify({ flightId, passengers })
-    });
-  };
-
-  /**
-   * Generate PDF ticket for booking
-   * 
-   * BACKEND INTEGRATION NOTE:
-   * - This method should call a backend endpoint that generates PDFs
-   * - The backend should use a library like PDFBox or iText
-   * - PDF should be returned as a base64 string or streamed for download
-   * 
-   * @param bookingId ID of the booking to generate ticket for
-   * @returns Promise with PDF data
-   */
-  const generateTicketPDF = (bookingId: string) => {
-    return fetchWithAuth(`/bookings/${bookingId}/ticket`, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/pdf'
-      }
-    });
-  };
-
-  /**
-   * Get travel packages
-   * 
-   * BACKEND INTEGRATION NOTE:
-   * - This method should call the backend API to get travel packages
-   * - Can include optional filtering parameters
-   * 
-   * @param params Optional filter parameters
-   * @returns Promise with packages data
-   */
-  const getTravelPackages = (params: Record<string, string> = {}) => {
-    return get('/packages', params);
-  };
-
-  /**
-   * Get booking statistics
-   * 
-   * BACKEND INTEGRATION NOTE:
-   * - This method should call the backend API to get statistics
-   * - The backend should aggregate booking data
-   * 
-   * @returns Promise with statistics data
-   */
-  const getBookingStats = () => {
-    return get('/bookings/stats');
-  };
-
   return {
     get,
     post,
     put,
     delete: del,
-    cancelBookingWithRefund,
-    bookFlightForMultiplePassengers,
-    generateTicketPDF,
-    getTravelPackages,
-    getBookingStats
+    cancelBookingWithRefund
   };
 };
-
-/**
- * Interface for passenger details
- */
-export interface PassengerDetails {
-  firstName: string;
-  lastName: string;
-  dateOfBirth?: string;
-  gender?: 'male' | 'female' | 'other';
-  passportNumber?: string;
-  specialRequests?: string;
-}
 
 /**
  * Example usages:
@@ -266,20 +184,6 @@ export interface PassengerDetails {
  * const cancelMyBooking = async (bookingId) => {
  *   try {
  *     const result = await apiClient.cancelBookingWithRefund(bookingId);
- *     console.log(result);
- *   } catch (error) {
- *     console.error(error);
- *   }
- * };
- * 
- * // Book flight for multiple passengers
- * const bookForFamily = async () => {
- *   try {
- *     const passengers = [
- *       { firstName: "John", lastName: "Doe", gender: "male" },
- *       { firstName: "Jane", lastName: "Doe", gender: "female" }
- *     ];
- *     const result = await apiClient.bookFlightForMultiplePassengers("FL123", passengers);
  *     console.log(result);
  *   } catch (error) {
  *     console.error(error);
