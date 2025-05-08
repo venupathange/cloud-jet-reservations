@@ -1,5 +1,6 @@
 
 import { toast } from "@/components/ui/use-toast";
+import { PassengerInfo } from "@/types/user";
 
 interface BookingData {
   id: string;
@@ -16,6 +17,7 @@ interface BookingData {
   userName?: string;
   status: string;
   bookingDate?: string;
+  passengers?: PassengerInfo[];
 }
 
 export const generateBookingPDF = (booking: BookingData): void => {
@@ -78,6 +80,13 @@ export const generateBookingPDF = (booking: BookingData): void => {
           font-size: 12px;
           color: #666;
         }
+        .passenger-list {
+          margin-top: 10px;
+        }
+        .passenger-item {
+          padding: 8px 0;
+          border-bottom: 1px solid #eee;
+        }
         @media print {
           .no-print {
             display: none;
@@ -111,7 +120,17 @@ export const generateBookingPDF = (booking: BookingData): void => {
       
       <div class="section">
         <div class="section-title">Passenger Information</div>
-        <div>Name: ${booking.userName || 'Not provided'}</div>
+        ${booking.passengers && booking.passengers.length > 0 ? 
+          `<div class="passenger-list">
+            ${booking.passengers.map((passenger, index) => `
+              <div class="passenger-item">
+                <strong>Passenger ${index + 1}:</strong> ${passenger.name}<br>
+                <span>Gender: ${passenger.gender}, Age: ${passenger.age} years</span>
+              </div>
+            `).join('')}
+          </div>` : 
+          `<div>Name: ${booking.userName || 'Not provided'}</div>`
+        }
       </div>
       
       <div class="section">

@@ -1,13 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plane, Search, Calendar, MapPin, AlertCircle } from "lucide-react";
+import { Plane, Search, Calendar, MapPin, AlertCircle, Plus, Minus, Ticket } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
+import { PassengerInfo } from "@/types/user";
+import PassengerSelector from "@/components/booking/PassengerSelector";
 import {
   Dialog,
   DialogContent,
@@ -17,60 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const MOCK_FLIGHTS = [
-  {
-    id: 'CJ-1245',
-    from: 'New York',
-    fromCode: 'JFK',
-    to: 'London',
-    toCode: 'LHR',
-    departureDate: '2025-06-15',
-    departureTime: '09:30',
-    arrivalDate: '2025-06-16',
-    arrivalTime: '22:15',
-    price: 430,
-    seatsAvailable: 42,
-  },
-  {
-    id: 'CJ-2347',
-    from: 'London',
-    fromCode: 'LHR',
-    to: 'Paris',
-    toCode: 'CDG',
-    departureDate: '2025-06-22',
-    departureTime: '14:15',
-    arrivalDate: '2025-06-22',
-    arrivalTime: '16:30',
-    price: 180,
-    seatsAvailable: 28,
-  },
-  {
-    id: 'CJ-3782',
-    from: 'Paris',
-    fromCode: 'CDG',
-    to: 'Dubai',
-    toCode: 'DXB',
-    departureDate: '2025-06-30',
-    departureTime: '22:45',
-    arrivalDate: '2025-07-01',
-    arrivalTime: '07:20',
-    price: 720,
-    seatsAvailable: 15,
-  },
-  {
-    id: 'CJ-9012',
-    from: 'Tokyo',
-    fromCode: 'HND',
-    to: 'Sydney',
-    toCode: 'SYD',
-    departureDate: '2025-07-15',
-    departureTime: '00:30',
-    arrivalDate: '2025-07-16',
-    arrivalTime: '10:45',
-    price: 850,
-    seatsAvailable: 5,
-  },
-];
+// ... keep existing code (MOCK_FLIGHTS array)
 
 interface FlightData {
   id: string;
@@ -96,6 +44,12 @@ export default function FlightsPage() {
   const [flightToDelete, setFlightToDelete] = useState<string | null>(null);
   const [editingFlight, setEditingFlight] = useState<FlightData | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  
+  // New state variables for booking functionality
+  const [ticketCount, setTicketCount] = useState<Record<string, number>>({});
+  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
+  const [selectedFlight, setSelectedFlight] = useState<FlightData | null>(null);
+  const [selectedPassengers, setSelectedPassengers] = useState<PassengerInfo[]>([]);
 
   // Load flights from localStorage on component mount
   useEffect(() => {
@@ -124,7 +78,35 @@ export default function FlightsPage() {
       flight.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleBookNow = (flight: FlightData) => {
+  const incrementTicket = (flightId: string) => {
+    const currentCount = ticketCount[flightId] || 0;
+    const flight = flights.find(f => f.id === flightId);
+    
+    if (flight && currentCount < flight.seatsAvailable) {
+      setTicketCount(prev => ({
+        ...prev,
+        [flightId]: currentCount + 1
+      }));
+    } else {
+      toast({
+        title: "Maximum Seats",
+        description: "You've reached the maximum available seats for this flight.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const decrementTicket = (flightId: string) => {
+    const currentCount = ticketCount[flightId] || 0;
+    if (currentCount > 0) {
+      setTicketCount(prev => ({
+        ...prev,
+        [flightId]: currentCount - 1
+      }));
+    }
+  };
+
+  const openBookingDialog = (flight: FlightData) => {
     // Check if user is authenticated
     if (!user) {
       toast({
@@ -136,34 +118,66 @@ export default function FlightsPage() {
       return;
     }
     
+    // Check if tickets are selected
+    const count = ticketCount[flight.id] || 0;
+    if (count === 0) {
+      toast({
+        title: "No Tickets Selected",
+        description: "Please select at least one ticket to continue.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Set selected flight and open dialog
+    setSelectedFlight(flight);
+    setSelectedPassengers([]);
+    setIsBookingDialogOpen(true);
+  };
+
+  const handleBookNow = () => {
+    if (!selectedFlight || !user) return;
+    
+    // Validate passenger count matches ticket count
+    const count = ticketCount[selectedFlight.id] || 0;
+    if (selectedPassengers.length !== count) {
+      toast({
+        title: "Passenger Selection Required",
+        description: `Please select exactly ${count} passengers for your booking.`,
+        variant: "destructive"
+      });
+      return;
+    }
+    
     // Save the booking to local storage
     try {
       const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
       
       const newBooking = {
         id: `BK-${Math.floor(Math.random() * 100000)}`,
-        flightId: flight.id,
+        flightId: selectedFlight.id,
         userId: user?.email || 'anonymous',
         userName: user?.email?.split('@')[0] || 'Guest User',
-        from: flight.from,
-        fromCode: flight.fromCode,
-        to: flight.to,
-        toCode: flight.toCode,
-        departureDate: flight.departureDate,
-        departureTime: flight.departureTime,
-        arrivalDate: flight.arrivalDate,
-        arrivalTime: flight.arrivalTime,
-        price: flight.price,
-        status: 'confirmed',
-        bookingDate: new Date().toISOString().split('T')[0]
+        from: selectedFlight.from,
+        fromCode: selectedFlight.fromCode,
+        to: selectedFlight.to,
+        toCode: selectedFlight.toCode,
+        departureDate: selectedFlight.departureDate,
+        departureTime: selectedFlight.departureTime,
+        arrivalDate: selectedFlight.arrivalDate,
+        arrivalTime: selectedFlight.arrivalTime,
+        price: selectedFlight.price * count, // Multiply price by ticket count
+        status: 'confirmed' as const,
+        bookingDate: new Date().toISOString().split('T')[0],
+        passengers: selectedPassengers,
       };
       
       localStorage.setItem('bookings', JSON.stringify([...existingBookings, newBooking]));
       
       // Update seat availability
       const updatedFlights = flights.map(f => {
-        if (f.id === flight.id) {
-          return { ...f, seatsAvailable: f.seatsAvailable - 1 };
+        if (f.id === selectedFlight.id) {
+          return { ...f, seatsAvailable: f.seatsAvailable - count };
         }
         return f;
       });
@@ -171,12 +185,19 @@ export default function FlightsPage() {
       setFlights(updatedFlights);
       localStorage.setItem('flights', JSON.stringify(updatedFlights));
       
+      // Reset ticket count for this flight
+      setTicketCount(prev => ({
+        ...prev,
+        [selectedFlight.id]: 0
+      }));
+      
       toast({
         title: "Flight Booked Successfully!",
-        description: `Your booking for flight ${flight.id} from ${flight.from} to ${flight.to} has been confirmed.`,
+        description: `Your booking for ${count} ticket(s) on flight ${selectedFlight.id} has been confirmed.`,
       });
       
-      // Navigate to bookings page
+      // Close dialog and navigate to bookings page
+      setIsBookingDialogOpen(false);
       navigate('/dashboard/bookings');
     } catch (error) {
       console.error("Error booking flight:", error);
@@ -395,13 +416,48 @@ export default function FlightsPage() {
                         </Button>
                       </div>
                     ) : (
-                      <Button 
-                        className="w-full bg-airline-blue hover:bg-airline-navy"
-                        onClick={() => handleBookNow(flight)}
-                        disabled={flight.seatsAvailable <= 0}
-                      >
-                        {flight.seatsAvailable > 0 ? "Book Now" : "Sold Out"}
-                      </Button>
+                      <>
+                        {flight.seatsAvailable > 0 ? (
+                          <>
+                            <div className="flex items-center justify-center mb-4">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => decrementTicket(flight.id)}
+                                disabled={(ticketCount[flight.id] || 0) === 0}
+                              >
+                                <Minus className="h-4 w-4" />
+                              </Button>
+                              <div className="flex items-center mx-4">
+                                <Ticket className="h-4 w-4 mr-1 text-airline-blue" />
+                                <span className="font-medium">{ticketCount[flight.id] || 0}</span>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => incrementTicket(flight.id)}
+                                disabled={(ticketCount[flight.id] || 0) >= flight.seatsAvailable}
+                              >
+                                <Plus className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <Button 
+                              className="w-full bg-airline-blue hover:bg-airline-navy"
+                              onClick={() => openBookingDialog(flight)}
+                              disabled={(ticketCount[flight.id] || 0) === 0}
+                            >
+                              Book Now
+                            </Button>
+                          </>
+                        ) : (
+                          <Button 
+                            className="w-full bg-gray-300"
+                            disabled={true}
+                          >
+                            Sold Out
+                          </Button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -416,6 +472,61 @@ export default function FlightsPage() {
           </div>
         )}
       </div>
+      
+      {/* Booking Dialog */}
+      <Dialog open={isBookingDialogOpen} onOpenChange={setIsBookingDialogOpen}>
+        <DialogContent className="sm:max-w-[625px]">
+          <DialogHeader>
+            <DialogTitle>Select Passengers</DialogTitle>
+            <DialogDescription>
+              {selectedFlight && (
+                <>
+                  Flight {selectedFlight.id} from {selectedFlight.from} to {selectedFlight.to}
+                  <br />
+                  Please select {ticketCount[selectedFlight.id] || 0} passenger(s) for this booking.
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <PassengerSelector 
+              selectedPassengers={selectedPassengers} 
+              onChange={setSelectedPassengers} 
+            />
+
+            {selectedFlight && (
+              <div className="mt-6 pt-4 border-t">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-500">Number of tickets:</span>
+                  <span className="font-medium">{ticketCount[selectedFlight.id] || 0}</span>
+                </div>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-sm text-gray-500">Price per ticket:</span>
+                  <span>₹{(selectedFlight.price * 83).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center mt-2 text-lg font-bold">
+                  <span>Total price:</span>
+                  <span className="text-airline-blue">₹{((selectedFlight.price * (ticketCount[selectedFlight.id] || 0)) * 83).toFixed(2)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsBookingDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleBookNow}
+              className="bg-airline-blue hover:bg-airline-navy"
+              disabled={!selectedFlight || selectedPassengers.length !== (ticketCount[selectedFlight.id] || 0)}
+            >
+              Confirm Booking
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       {/* Edit Flight Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

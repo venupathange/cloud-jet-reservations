@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import BookingCard from "@/components/bookings/BookingCard";
@@ -134,7 +133,7 @@ export default function BookingsPage() {
             ...booking,
             status: (booking.status === 'confirmed' || booking.status === 'pending' || booking.status === 'cancelled') 
               ? booking.status as 'confirmed' | 'pending' | 'cancelled'
-              : 'pending'
+              : 'pending' as const
           }));
           setBookings(typedBookings);
         } else {
@@ -145,7 +144,7 @@ export default function BookingsPage() {
               ...booking,
               status: (booking.status === 'confirmed' || booking.status === 'pending' || booking.status === 'cancelled') 
                 ? booking.status as 'confirmed' | 'pending' | 'cancelled'
-                : 'pending'
+                : 'pending' as const
             }));
           
           if (userBookings.length > 0) {
