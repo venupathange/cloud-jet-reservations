@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,48 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// ... keep existing code (MOCK_FLIGHTS array)
+// Define the missing MOCK_FLIGHTS variable
+const MOCK_FLIGHTS = [
+  {
+    id: "CJ-1245",
+    from: "New York",
+    fromCode: "JFK",
+    to: "London",
+    toCode: "LHR",
+    departureDate: "2025-06-15",
+    departureTime: "09:30",
+    arrivalDate: "2025-06-16",
+    arrivalTime: "22:15",
+    price: 430,
+    seatsAvailable: 45
+  },
+  {
+    id: "CJ-2347",
+    from: "London",
+    fromCode: "LHR",
+    to: "Paris",
+    toCode: "CDG",
+    departureDate: "2025-06-22",
+    departureTime: "14:15",
+    arrivalDate: "2025-06-22",
+    arrivalTime: "16:30",
+    price: 180,
+    seatsAvailable: 32
+  },
+  {
+    id: "CJ-3782",
+    from: "Paris",
+    fromCode: "CDG",
+    to: "Dubai",
+    toCode: "DXB",
+    departureDate: "2025-06-30",
+    departureTime: "22:45",
+    arrivalDate: "2025-07-01",
+    arrivalTime: "07:20",
+    price: 720,
+    seatsAvailable: 18
+  }
+];
 
 interface FlightData {
   id: string;
