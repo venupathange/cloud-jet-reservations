@@ -76,6 +76,11 @@ export default function DashboardLayout() {
       icon: <CreditCard className="h-5 w-5" /> 
     },
     { 
+      name: 'Passengers', 
+      path: '/dashboard/passengers', 
+      icon: <Users className="h-5 w-5" /> 
+    },
+    { 
       name: 'Submit Review', 
       path: '/dashboard/review', 
       icon: <MessageSquare className="h-5 w-5" /> 

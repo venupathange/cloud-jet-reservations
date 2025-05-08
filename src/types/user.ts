@@ -11,3 +11,10 @@ export interface UserProfile {
   bio?: string;
   avatarUrl?: string;
 }
+
+export interface PassengerInfo {
+  id: string;
+  name: string;
+  gender: 'male' | 'female' | 'other';
+  age: number;
+}

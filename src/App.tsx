@@ -28,6 +28,7 @@ import AddFlightPage from "./pages/Dashboard/AddFlight";
 import RoleGuard from "./components/auth/RoleGuard";
 import Profile from "./pages/Dashboard/Profile";
 import ChatBot from "./components/chat/ChatBot";
+import PassengersPage from "./pages/Dashboard/Passengers";
 
 /**
  * BACKEND INTEGRATION NOTE:
@@ -111,6 +112,7 @@ const App = () => (
               <Route element={<RoleGuard allowedRoles={['customer']} />}>
                 <Route path="wallet" element={<WalletPage />} />
                 <Route path="review" element={<ReviewPage />} />
+                <Route path="passengers" element={<PassengersPage />} />
               </Route>
             </Route>
             

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import BookingCard from "@/components/bookings/BookingCard";
@@ -95,6 +94,8 @@ interface BookingDetails {
   price: number;
   status: 'confirmed' | 'pending' | 'cancelled';
   bookingDate?: string;
+  // Add passengers field
+  passengers?: PassengerInfo[];
 }
 
 export default function BookingsPage() {
@@ -127,7 +128,9 @@ export default function BookingsPage() {
           // Make sure we explicitly cast the status to the correct type
           const typedBookings = savedBookings.map((booking: any) => ({
             ...booking,
-            status: booking.status as 'confirmed' | 'pending' | 'cancelled'
+            status: (booking.status === 'confirmed' || booking.status === 'pending' || booking.status === 'cancelled') 
+              ? booking.status as 'confirmed' | 'pending' | 'cancelled'
+              : 'pending'
           }));
           setBookings(typedBookings);
         } else {
@@ -136,7 +139,9 @@ export default function BookingsPage() {
             .filter((booking: any) => booking.userId === user?.email)
             .map((booking: any) => ({
               ...booking,
-              status: booking.status as 'confirmed' | 'pending' | 'cancelled'
+              status: (booking.status === 'confirmed' || booking.status === 'pending' || booking.status === 'cancelled') 
+                ? booking.status as 'confirmed' | 'pending' | 'cancelled'
+                : 'pending'
             }));
           
           if (userBookings.length > 0) {
@@ -363,6 +368,8 @@ export default function BookingsPage() {
               onCancel={() => handleCancelBooking(booking.id)}
               onViewDetails={() => handleViewDetails(booking.id)}
               {...booking}
+              // Pass passengers to BookingCard
+              passengers={booking.passengers}
               // Add these props for the new buttons
               extraButtons={
                 <div className="flex space-x-2">
@@ -461,6 +468,21 @@ export default function BookingsPage() {
                   <p className="text-sm text-gray-500">{selectedBooking.arrivalTime}</p>
                 </div>
               </div>
+              
+              {/* Display passengers if any */}
+              {selectedBooking.passengers && selectedBooking.passengers.length > 0 && (
+                <div className="pt-3 border-t">
+                  <h4 className="text-sm font-medium text-gray-500 mb-2">Passengers</h4>
+                  <div className="space-y-2">
+                    {selectedBooking.passengers.map((passenger) => (
+                      <div key={passenger.id} className="bg-gray-50 p-2 rounded flex justify-between">
+                        <span>{passenger.name}</span>
+                        <span className="text-gray-500">{passenger.gender}, {passenger.age} years</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               <div className="pt-3 border-t">
                 <div className="flex justify-between items-center">
