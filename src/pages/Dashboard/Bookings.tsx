@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import BookingCard from "@/components/bookings/BookingCard";
@@ -6,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { Search, Calendar, FileText, Download } from "lucide-react";
 import { generateBookingPDF } from "@/utils/pdfUtils";
+import { PassengerInfo } from "@/types/user";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +39,7 @@ const DEFAULT_BOOKINGS = [
     arrivalTime: '22:15',
     price: 430,
     status: 'confirmed' as const,
+    passengers: [],
   },
   {
     id: 'BK-54321',
@@ -53,6 +56,7 @@ const DEFAULT_BOOKINGS = [
     arrivalTime: '16:30',
     price: 180,
     status: 'pending' as const,
+    passengers: [],
   },
   {
     id: 'BK-98765',
@@ -69,6 +73,7 @@ const DEFAULT_BOOKINGS = [
     arrivalTime: '07:20',
     price: 720,
     status: 'cancelled' as const,
+    passengers: [],
   }
 ];
 
@@ -94,7 +99,6 @@ interface BookingDetails {
   price: number;
   status: 'confirmed' | 'pending' | 'cancelled';
   bookingDate?: string;
-  // Add passengers field
   passengers?: PassengerInfo[];
 }
 

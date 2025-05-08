@@ -92,7 +92,7 @@ export default function PassengersPage() {
       // Edit existing passenger
       const updatedPassengers = passengers.map(passenger => 
         passenger.id === editPassengerId 
-          ? { ...values, id: editPassengerId } 
+          ? { ...passenger, ...values } 
           : passenger
       );
       savePassengers(updatedPassengers);
@@ -103,8 +103,10 @@ export default function PassengersPage() {
     } else {
       // Add new passenger
       const newPassenger: PassengerInfo = {
-        ...values,
         id: `p-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name: values.name,
+        gender: values.gender,
+        age: values.age,
       };
       savePassengers([...passengers, newPassenger]);
       toast({
