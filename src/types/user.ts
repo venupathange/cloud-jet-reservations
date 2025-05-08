@@ -3,8 +3,6 @@ export interface UserProfile {
   email: string;
   userType: 'admin' | 'customer' | null;
   displayName?: string;
-  firstName?: string;
-  lastName?: string;
   phoneNumber?: string;
   address?: string;
   city?: string;
