@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -19,11 +18,11 @@ import { UserProfile } from '@/types/user';
 import { Mail, Phone, MapPin, User, Save, Edit, UploadCloud } from 'lucide-react';
 
 export default function Profile() {
-  const { userProfile, updateUserProfile } = useAuth();
+  const { user, updateProfile } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<Partial<UserProfile>>(userProfile || {});
+  const [formData, setFormData] = useState<Partial<UserProfile>>(user || {});
 
-  if (!userProfile) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center h-full">
         <p>Please log in to view your profile</p>
@@ -31,15 +30,22 @@ export default function Profile() {
     );
   }
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  function getAvatarFallback() {
+    if (user.displayName) {
+      return user.displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+    return user.email.substring(0, 2).toUpperCase();
+  }
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
     });
-  };
+  }
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -51,33 +57,25 @@ export default function Profile() {
       };
       reader.readAsDataURL(file);
     }
-  };
+  }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    updateUserProfile(formData);
+    updateProfile(formData);
     setIsEditing(false);
     toast({
       title: "Profile updated",
       description: "Your profile has been updated successfully",
     });
-  };
+  }
 
-  const toggleEdit = () => {
+  function toggleEdit() {
     if (isEditing) {
       // Reset form data if canceling edit
-      setFormData(userProfile);
+      setFormData(user);
     }
     setIsEditing(!isEditing);
-  };
-
-  // Generate avatar fallback from email or display name
-  const getAvatarFallback = () => {
-    if (userProfile.displayName) {
-      return userProfile.displayName.split(' ').map(n => n[0]).join('').toUpperCase();
-    }
-    return userProfile.email.substring(0, 2).toUpperCase();
-  };
+  }
 
   return (
     <div className="container py-10 mx-auto">
@@ -89,29 +87,29 @@ export default function Profile() {
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <Avatar className="h-24 w-24">
-                <AvatarImage src={userProfile.avatarUrl} />
+                <AvatarImage src={user.avatarUrl} />
                 <AvatarFallback className="text-xl">{getAvatarFallback()}</AvatarFallback>
               </Avatar>
             </div>
-            <CardTitle>{userProfile.displayName || userProfile.email}</CardTitle>
-            <CardDescription className="capitalize">{userProfile.userType} Account</CardDescription>
+            <CardTitle>{user.displayName || user.email}</CardTitle>
+            <CardDescription className="capitalize">{user.userType} Account</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-gray-500" />
-              <span>{userProfile.email}</span>
+              <span>{user.email}</span>
             </div>
-            {userProfile.phoneNumber && (
+            {user.phoneNumber && (
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-gray-500" />
-                <span>{userProfile.phoneNumber}</span>
+                <span>{user.phoneNumber}</span>
               </div>
             )}
-            {(userProfile.address || userProfile.city) && (
+            {(user.address || user.city) && (
               <div className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-gray-500" />
                 <span>
-                  {[userProfile.address, userProfile.city, userProfile.state, userProfile.zipCode]
+                  {[user.address, user.city, user.state, user.zipCode]
                     .filter(Boolean)
                     .join(', ')}
                 </span>
@@ -183,13 +181,13 @@ export default function Profile() {
                       placeholder="Enter your full name"
                     />
                   ) : (
-                    <p className="text-gray-700 py-2">{userProfile.displayName || 'Not set'}</p>
+                    <p className="text-gray-700 py-2">{user.displayName || 'Not set'}</p>
                   )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <p className="text-gray-700 py-2">{userProfile.email}</p>
+                  <p className="text-gray-700 py-2">{user.email}</p>
                 </div>
 
                 <div className="space-y-2">
@@ -203,7 +201,7 @@ export default function Profile() {
                       placeholder="Enter your phone number"
                     />
                   ) : (
-                    <p className="text-gray-700 py-2">{userProfile.phoneNumber || 'Not set'}</p>
+                    <p className="text-gray-700 py-2">{user.phoneNumber || 'Not set'}</p>
                   )}
                 </div>
 
@@ -218,7 +216,7 @@ export default function Profile() {
                       placeholder="Enter your address"
                     />
                   ) : (
-                    <p className="text-gray-700 py-2">{userProfile.address || 'Not set'}</p>
+                    <p className="text-gray-700 py-2">{user.address || 'Not set'}</p>
                   )}
                 </div>
 
@@ -233,7 +231,7 @@ export default function Profile() {
                       placeholder="Enter your city"
                     />
                   ) : (
-                    <p className="text-gray-700 py-2">{userProfile.city || 'Not set'}</p>
+                    <p className="text-gray-700 py-2">{user.city || 'Not set'}</p>
                   )}
                 </div>
 
@@ -248,7 +246,7 @@ export default function Profile() {
                       placeholder="Enter your state"
                     />
                   ) : (
-                    <p className="text-gray-700 py-2">{userProfile.state || 'Not set'}</p>
+                    <p className="text-gray-700 py-2">{user.state || 'Not set'}</p>
                   )}
                 </div>
 
@@ -263,7 +261,7 @@ export default function Profile() {
                       placeholder="Enter your zip code"
                     />
                   ) : (
-                    <p className="text-gray-700 py-2">{userProfile.zipCode || 'Not set'}</p>
+                    <p className="text-gray-700 py-2">{user.zipCode || 'Not set'}</p>
                   )}
                 </div>
               </div>
@@ -280,7 +278,7 @@ export default function Profile() {
                     className="min-h-[100px]"
                   />
                 ) : (
-                  <p className="text-gray-700 py-2">{userProfile.bio || 'No bio available'}</p>
+                  <p className="text-gray-700 py-2">{user.bio || 'No bio available'}</p>
                 )}
               </div>
 
