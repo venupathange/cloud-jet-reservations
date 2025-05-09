@@ -131,10 +131,12 @@ export default function BookingsPage() {
           // Make sure we explicitly cast the status to the correct type
           const typedBookings = savedBookings.map((booking: any) => ({
             ...booking,
+            // Ensure status is one of the allowed values or default to 'pending'
             status: (booking.status === 'confirmed' || booking.status === 'pending' || booking.status === 'cancelled') 
               ? booking.status as 'confirmed' | 'pending' | 'cancelled'
               : 'pending' as const
-          }));
+          })) as BookingDetails[];
+          
           setBookings(typedBookings);
         } else {
           // Users only see their own bookings
@@ -142,10 +144,11 @@ export default function BookingsPage() {
             .filter((booking: any) => booking.userId === user?.email)
             .map((booking: any) => ({
               ...booking,
+              // Ensure status is one of the allowed values or default to 'pending'
               status: (booking.status === 'confirmed' || booking.status === 'pending' || booking.status === 'cancelled') 
                 ? booking.status as 'confirmed' | 'pending' | 'cancelled'
                 : 'pending' as const
-            }));
+            })) as BookingDetails[];
           
           if (userBookings.length > 0) {
             setBookings(userBookings);
@@ -225,7 +228,7 @@ export default function BookingsPage() {
       
       // Also update the state
       const newBookings = bookings.map(booking => 
-        booking.id === id ? { ...booking, status: 'cancelled' } : booking
+        booking.id === id ? { ...booking, status: 'cancelled' as const } : booking
       );
       
       setBookings(newBookings);
@@ -244,49 +247,6 @@ export default function BookingsPage() {
         description: "Failed to cancel booking. Please try again.",
         variant: "destructive"
       });
-    }
-  };
-
-  /**
-   * BACKEND INTEGRATION NOTE:
-   * - Replace with API call to Spring Boot backend
-   * - Use fetch or axios to make a POST request to /api/wallet/refund
-   * - Include JWT token in Authorization header
-   * - Process refund on the backend to ensure data integrity
-   * 
-   * @param booking Booking details to process refund for
-   */
-  const processRefund = (booking: BookingDetails) => {
-    // Get current wallet from localStorage
-    try {
-      const walletInfo = JSON.parse(localStorage.getItem('wallet') || '{"balance": 2500}');
-      
-      // Add refund amount to wallet balance
-      const updatedWallet = {
-        balance: walletInfo.balance + booking.price,
-        transactions: [
-          {
-            id: `refund-${Date.now()}`,
-            amount: booking.price,
-            type: "deposit" as const,
-            description: `Refund for booking ${booking.id} (${booking.flightId})`,
-            date: new Date().toLocaleString('en-US', {
-              year: 'numeric', 
-              month: '2-digit', 
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit'
-            }),
-          },
-          ...(walletInfo.transactions || [])
-        ]
-      };
-      
-      // Save updated wallet to localStorage
-      localStorage.setItem('wallet', JSON.stringify(updatedWallet));
-      
-    } catch (error) {
-      console.error("Error processing refund:", error);
     }
   };
 
