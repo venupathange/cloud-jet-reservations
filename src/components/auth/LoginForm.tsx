@@ -11,6 +11,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [loginError, setLoginError] = useState<string | null>(null);
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -35,11 +36,14 @@ export default function LoginForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setLoginError(null);
     
     if (validateForm()) {
       const success = login(email, password);
       if (success) {
         navigate("/dashboard");
+      } else {
+        setLoginError("Invalid credentials. For testing, use password: 'password'");
       }
     }
   };
@@ -69,6 +73,11 @@ export default function LoginForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {loginError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+              {loginError}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
@@ -132,6 +141,17 @@ export default function LoginForm() {
               className="w-full border-gray-300 hover:bg-gray-50"
             >
               Use Test Account (user@example.com)
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline"
+              onClick={() => {
+                setEmail("admin@example.com");
+                setPassword("password");
+              }}
+              className="w-full border-gray-300 hover:bg-gray-50"
+            >
+              Use Admin Account (admin@example.com)
             </Button>
           </div>
         </CardContent>

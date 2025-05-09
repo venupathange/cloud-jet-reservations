@@ -23,6 +23,7 @@ export default function RegisterForm() {
     password?: string;
     confirmPassword?: string;
   }>({});
+  const [registerSuccess, setRegisterSuccess] = useState(false);
   
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -63,7 +64,10 @@ export default function RegisterForm() {
       // Always register as customer
       const success = register(email, password, "customer");
       if (success) {
-        navigate("/login");
+        setRegisterSuccess(true);
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
       }
     }
   };
@@ -83,6 +87,11 @@ export default function RegisterForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {registerSuccess && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+              Registration successful! Redirecting to login...
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
