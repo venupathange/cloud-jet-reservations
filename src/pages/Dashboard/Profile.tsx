@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { 
@@ -15,8 +14,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { UserProfile } from '@/types/user';
-import { Mail, Phone, MapPin, User, Save, Edit, UploadCloud } from 'lucide-react';
+import { UserProfile } from '@/models/types/user';
+import { Mail, Phone, MapPin, Edit, UploadCloud, Save } from 'lucide-react';
 
 export default function Profile() {
   const { userProfile, updateUserProfile } = useAuth();

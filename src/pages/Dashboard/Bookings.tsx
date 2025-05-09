@@ -15,7 +15,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { BookingDetails } from "@/models/types";
 
 /**
  * BACKEND INTEGRATION NOTE:
