@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { Search, Calendar, FileText, Download } from "lucide-react";
 import { generateBookingPDF } from "@/utils/pdfUtils";
-import { PassengerInfo } from "@/types/user";
+import { PassengerInfo } from "@/models/types/user";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { BookingDetails } from "@/models/types";
 
 /**
  * BACKEND INTEGRATION NOTE:
@@ -275,6 +276,40 @@ export default function BookingsPage() {
    */
   const handleDownloadPDF = (booking: BookingDetails) => {
     generateBookingPDF(booking);
+  };
+
+  /**
+   * Process refund to wallet when a booking is cancelled
+   */
+  const processRefund = (booking: BookingDetails) => {
+    try {
+      const walletData = JSON.parse(localStorage.getItem('wallet') || '[]')[0] || { balance: 0, transactions: [] };
+      
+      const updatedWallet = {
+        balance: walletData.balance + booking.price,
+        transactions: [
+          {
+            id: `refund-${Date.now()}`,
+            amount: booking.price,
+            type: "deposit" as const,
+            description: `Refund for booking ${booking.id} (${booking.flightId})`,
+            date: new Date().toLocaleString('en-US', {
+              year: 'numeric', 
+              month: '2-digit', 
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
+          },
+          ...(walletData.transactions || [])
+        ]
+      };
+      
+      localStorage.setItem('wallet', JSON.stringify([updatedWallet]));
+      console.log("Refund processed successfully:", updatedWallet);
+    } catch (error) {
+      console.error("Error processing refund:", error);
+    }
   };
 
   return (
