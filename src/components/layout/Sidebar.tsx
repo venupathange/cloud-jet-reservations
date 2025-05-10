@@ -1,61 +1,51 @@
 
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
+
+export interface SidebarItem {
+  name: string;
+  path: string;
+  icon?: React.ReactNode;
+}
 
 interface SidebarProps {
-  items: {
-    name: string;
-    path: string;
-    icon: React.ReactNode;
-  }[];
+  items: SidebarItem[];
 }
 
 export default function Sidebar({ items }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
-
+  const location = useLocation();
+  
   return (
-    <div
-      className={cn(
-        "relative border-r bg-airline-gray transition-all duration-300",
-        collapsed ? "w-16" : "w-64"
-      )}
-    >
-      <div className="h-full">
-        <div className="flex h-16 items-center justify-between border-b px-4">
-          {!collapsed && <span className="font-medium">Navigation</span>}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="ml-auto"
-            onClick={() => setCollapsed(!collapsed)}
-          >
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-          </Button>
+    <aside className="hidden md:flex border-r bg-sidebar border-sidebar-border min-h-[calc(100vh-4rem)] w-64 flex-col">
+      <div className="px-3 py-4 flex flex-col h-full">
+        <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight text-sidebar-foreground">
+          Dashboard
+        </h2>
+        <div className="space-y-1 flex-1">
+          {items.map((item) => (
+            <Link 
+              key={item.name}
+              to={item.path}
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-all",
+                location.pathname === item.path 
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              )}
+            >
+              {item.icon}
+              {item.name}
+            </Link>
+          ))}
         </div>
-        <ScrollArea className="h-[calc(100vh-4rem)] px-2">
-          <nav className="flex flex-col gap-2 py-4">
-            {items.map((item, index) => (
-              <NavLink
-                key={index}
-                to={item.path}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                    isActive ? "bg-airline-blue text-white" : "hover:bg-airline-lightblue/10 hover:text-airline-blue"
-                  )
-                }
-              >
-                {item.icon}
-                {!collapsed && <span>{item.name}</span>}
-              </NavLink>
-            ))}
-          </nav>
-        </ScrollArea>
+        <div className="mt-6 flex flex-col gap-3 px-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-sidebar-foreground">Theme</span>
+            <ThemeToggle variant="switch" />
+          </div>
+        </div>
       </div>
-    </div>
+    </aside>
   );
 }

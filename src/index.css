@@ -90,6 +90,10 @@
     @apply border-border;
   }
 
+  html, body {
+    @apply transition-colors duration-300 ease-in-out;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -101,4 +105,18 @@
 
 .bg-gradient-sky {
   background: linear-gradient(109.6deg, rgba(223,234,247,1) 11.2%, rgba(244,248,252,1) 91.1%);
+}
+
+.dark .bg-gradient-sky {
+  background: linear-gradient(109.6deg, rgba(30,40,50,1) 11.2%, rgba(15,23,42,1) 91.1%);
+}
+
+/* Theme transition classes */
+.theme-transition {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }

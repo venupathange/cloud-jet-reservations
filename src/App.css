@@ -47,3 +47,23 @@
   background-repeat: no-repeat;
 }
 
+/* Theme transition */
+.theme-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark mode specific styles */
+.dark .text-subtle {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Accessibility improvements for both modes */
+.dark .high-contrast {
+  color: white;
+  background-color: #121212;
+}
+
+.light .high-contrast {
+  color: black;
+  background-color: white;
+}
