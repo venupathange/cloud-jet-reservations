@@ -99,6 +99,42 @@
   }
 }
 
+/* W3Schools style dark mode improvements */
+.dark input, 
+.dark textarea, 
+.dark select {
+  @apply bg-gray-800 border-gray-700 text-gray-100;
+}
+
+.dark input::placeholder {
+  @apply text-gray-400;
+}
+
+.dark .button-primary {
+  @apply bg-blue-600 hover:bg-blue-700;
+}
+
+.dark .button-secondary {
+  @apply bg-gray-700 hover:bg-gray-600;
+}
+
+.dark .card {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .divider {
+  @apply border-gray-700;
+}
+
+.dark a {
+  @apply text-blue-400 hover:text-blue-300;
+}
+
+.dark .text-subtle {
+  @apply text-gray-300;
+}
+
+/* Animations */
 .floating {
   animation: float 3s ease-in-out infinite;
 }
@@ -116,7 +152,48 @@
   @apply transition-all duration-300 ease-in-out;
 }
 
+/* Enhanced accessibility for focus states */
+.focus-visible:focus {
+  @apply outline-none ring-2 ring-offset-2 ring-blue-500;
+}
+
+.dark .focus-visible:focus {
+  @apply ring-blue-400;
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
+}
+
+/* Search bar specific styles */
+.search-container {
+  @apply relative w-full;
+}
+
+.search-input {
+  @apply transition-all duration-300;
+}
+
+.dark .search-input {
+  @apply bg-gray-800 border-gray-700 text-white;
+}
+
+.search-button {
+  @apply transition-all duration-300;
+}
+
+/* Accessibility improvements */
+.sr-only {
+  @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+}
+
+.dark .high-contrast {
+  color: white;
+  background-color: #121212;
+}
+
+.light .high-contrast {
+  color: black;
+  background-color: white;
 }

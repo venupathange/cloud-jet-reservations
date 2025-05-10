@@ -2,10 +2,15 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plane, CreditCard, Calendar, MessageSquare, Shield, CheckCircle2, Users, Globe, Heart } from "lucide-react";
 import Header from "@/components/layout/Header";
+import SearchBar from "@/components/search/SearchBar";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function LandingPage() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+  
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={`min-h-screen flex flex-col transition-colors duration-300 ${isDark ? 'bg-gray-900 text-gray-100' : ''}`}>
       <Header />
       
       {/* Hero Section with fixed background */}
@@ -14,19 +19,25 @@ export default function LandingPage() {
           className="absolute inset-0 bg-cover bg-center z-0" 
           style={{ 
             backgroundImage: 'url("https://images.unsplash.com/photo-1559367183-975d410de28e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80")',
-            opacity: 0.3
+            opacity: isDark ? 0.2 : 0.3
           }}
         ></div>
         <div className="container px-4 md:px-6 relative z-10">
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
             <div className="space-y-6">
-              <div className="inline-block bg-airline-blue/10 text-airline-blue px-3 py-1 rounded-full font-medium text-sm mb-2">
+              <div className={`inline-block ${isDark ? 'bg-airline-blue/20 text-airline-lightblue' : 'bg-airline-blue/10 text-airline-blue'} px-3 py-1 rounded-full font-medium text-sm mb-2`}>
                 #1 Airline in India
               </div>
               <h1 className="text-4xl font-extrabold tracking-tighter sm:text-5xl md:text-6xl">Book Your Dream Flights with Cloud Jet Services</h1>
-              <p className="text-gray-600 md:text-xl max-w-lg">
+              <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} md:text-xl max-w-lg`}>
                 Your journey begins with us. Explore our wide range of flights and enjoy a seamless booking experience with the best airfares in India.
               </p>
+              
+              {/* Search Bar integration */}
+              <div className="my-8">
+                <SearchBar variant="hero" />
+              </div>
+              
               <div className="flex flex-col gap-3 min-[400px]:flex-row">
                 <Link to="/login">
                   <Button className="bg-airline-blue hover:bg-airline-navy text-lg px-8 py-6">
@@ -34,7 +45,7 @@ export default function LandingPage() {
                   </Button>
                 </Link>
                 <Link to="/register">
-                  <Button variant="outline" className="text-lg px-8 py-6">Create an Account</Button>
+                  <Button variant={isDark ? "outline" : "outline"} className={`text-lg px-8 py-6 ${isDark ? 'border-gray-400 hover:bg-gray-800' : ''}`}>Create an Account</Button>
                 </Link>
               </div>
             </div>
@@ -44,25 +55,25 @@ export default function LandingPage() {
                 alt="Cloud Jet airplane" 
                 className="rounded-2xl shadow-2xl w-full max-w-lg mx-auto object-cover animate-float relative z-10" 
               />
-              <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg w-48 hidden md:block z-20">
+              <div className={`absolute -bottom-6 -left-6 ${isDark ? 'bg-gray-800' : 'bg-white'} p-4 rounded-xl shadow-lg w-48 hidden md:block z-20`}>
                 <div className="flex items-center">
-                  <div className="bg-green-100 p-2 rounded-full">
-                    <CheckCircle2 className="h-8 w-8 text-green-600" />
+                  <div className={`${isDark ? 'bg-green-900/50' : 'bg-green-100'} p-2 rounded-full`}>
+                    <CheckCircle2 className={`h-8 w-8 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
                   </div>
                   <div className="ml-3">
                     <p className="font-bold">Trusted</p>
-                    <p className="text-sm text-gray-500">By 5+ Million Indians</p>
+                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>By 5+ Million Indians</p>
                   </div>
                 </div>
               </div>
-              <div className="absolute -top-6 -right-6 bg-white p-4 rounded-xl shadow-lg w-48 hidden md:block z-20">
+              <div className={`absolute -top-6 -right-6 ${isDark ? 'bg-gray-800' : 'bg-white'} p-4 rounded-xl shadow-lg w-48 hidden md:block z-20`}>
                 <div className="flex items-center">
-                  <div className="bg-blue-100 p-2 rounded-full">
-                    <Shield className="h-8 w-8 text-blue-600" />
+                  <div className={`${isDark ? 'bg-blue-900/50' : 'bg-blue-100'} p-2 rounded-full`}>
+                    <Shield className={`h-8 w-8 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
                   </div>
                   <div className="ml-3">
                     <p className="font-bold">Secure</p>
-                    <p className="text-sm text-gray-500">100% Safe Booking</p>
+                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>100% Safe Booking</p>
                   </div>
                 </div>
               </div>
@@ -72,78 +83,78 @@ export default function LandingPage() {
       </section>
 
       {/* Stats Section */}
-      <section className="py-12 bg-white border-y">
+      <section className={`py-12 ${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white'} border-y`}>
         <div className="container px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             <div className="text-center p-4">
               <p className="text-3xl md:text-4xl font-bold text-airline-blue">5M+</p>
-              <p className="text-gray-500">Happy Customers</p>
+              <p className={isDark ? "text-gray-300" : "text-gray-500"}>Happy Customers</p>
             </div>
             <div className="text-center p-4">
               <p className="text-3xl md:text-4xl font-bold text-airline-blue">100+</p>
-              <p className="text-gray-500">Destinations</p>
+              <p className={isDark ? "text-gray-300" : "text-gray-500"}>Destinations</p>
             </div>
             <div className="text-center p-4">
               <p className="text-3xl md:text-4xl font-bold text-airline-blue">500+</p>
-              <p className="text-gray-500">Daily Flights</p>
+              <p className={isDark ? "text-gray-300" : "text-gray-500"}>Daily Flights</p>
             </div>
             <div className="text-center p-4">
               <p className="text-3xl md:text-4xl font-bold text-airline-blue">99%</p>
-              <p className="text-gray-500">On-time Performance</p>
+              <p className={isDark ? "text-gray-300" : "text-gray-500"}>On-time Performance</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className={`py-16 md:py-24 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-            <div className="bg-airline-blue/10 text-airline-blue px-3 py-1 rounded-full font-medium text-sm">
+            <div className={`${isDark ? 'bg-airline-blue/20 text-airline-lightblue' : 'bg-airline-blue/10 text-airline-blue'} px-3 py-1 rounded-full font-medium text-sm`}>
               Premium Services
             </div>
             <div className="space-y-2">
               <h2 className="text-3xl font-extrabold tracking-tighter sm:text-4xl md:text-5xl">Why Fly With Cloud Jet?</h2>
-              <p className="text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed max-w-3xl mx-auto">
+              <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed max-w-3xl mx-auto`}>
                 Experience the premium services offered by Cloud Jet Services across India and internationally
               </p>
             </div>
           </div>
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-            <div className="flex flex-col items-center space-y-4 rounded-xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition bg-white">
+            <div className={`flex flex-col items-center space-y-4 rounded-xl border ${isDark ? 'border-gray-700 bg-gray-800 hover:bg-gray-700' : 'border-gray-200 bg-white hover:shadow-md'} p-8 shadow-sm transition`}>
               <div className="rounded-full bg-airline-blue p-4">
                 <Plane className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold">Premium Flights</h3>
-              <p className="text-center text-gray-600">Modern fleet with spacious seating and exceptional comfort on every journey</p>
+              <p className={`text-center ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Modern fleet with spacious seating and exceptional comfort on every journey</p>
             </div>
-            <div className="flex flex-col items-center space-y-4 rounded-xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition bg-white">
+            <div className={`flex flex-col items-center space-y-4 rounded-xl border ${isDark ? 'border-gray-700 bg-gray-800 hover:bg-gray-700' : 'border-gray-200 bg-white hover:shadow-md'} p-8 shadow-sm transition`}>
               <div className="rounded-full bg-airline-blue p-4">
                 <CreditCard className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold">Easy Payments</h3>
-              <p className="text-center text-gray-600">Secure payment options including UPI, net banking, and all credit/debit cards</p>
+              <p className={`text-center ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Secure payment options including UPI, net banking, and all credit/debit cards</p>
             </div>
-            <div className="flex flex-col items-center space-y-4 rounded-xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition bg-white">
+            <div className={`flex flex-col items-center space-y-4 rounded-xl border ${isDark ? 'border-gray-700 bg-gray-800 hover:bg-gray-700' : 'border-gray-200 bg-white hover:shadow-md'} p-8 shadow-sm transition`}>
               <div className="rounded-full bg-airline-blue p-4">
                 <Calendar className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold">Flight Management</h3>
-              <p className="text-center text-gray-600">Easily manage bookings, check-in online, and get real-time flight updates</p>
+              <p className={`text-center ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Easily manage bookings, check-in online, and get real-time flight updates</p>
             </div>
-            <div className="flex flex-col items-center space-y-4 rounded-xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition bg-white">
+            <div className={`flex flex-col items-center space-y-4 rounded-xl border ${isDark ? 'border-gray-700 bg-gray-800 hover:bg-gray-700' : 'border-gray-200 bg-white hover:shadow-md'} p-8 shadow-sm transition`}>
               <div className="rounded-full bg-airline-blue p-4">
                 <MessageSquare className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold">24/7 Support</h3>
-              <p className="text-center text-gray-600">Customer service available anytime via chat, call, or email in multiple languages</p>
+              <p className={`text-center ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Customer service available anytime via chat, call, or email in multiple languages</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Destinations Section */}
-      <section className="py-16 md:py-24 bg-gray-50">
+      <section className={`py-16 md:py-24 ${isDark ? 'bg-gray-800' : 'bg-gray-50'}`}>
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
             <div className="bg-airline-blue/10 text-airline-blue px-3 py-1 rounded-full font-medium text-sm">
@@ -234,7 +245,7 @@ export default function LandingPage() {
       </section>
       
       {/* Why Choose Us Section */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className={`py-16 md:py-24 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
             <div className="bg-airline-blue/10 text-airline-blue px-3 py-1 rounded-full font-medium text-sm">
@@ -242,7 +253,7 @@ export default function LandingPage() {
             </div>
             <div className="space-y-2">
               <h2 className="text-3xl font-extrabold tracking-tighter sm:text-4xl">Why Choose Us</h2>
-              <p className="text-gray-600 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed max-w-3xl mx-auto">
+              <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed max-w-3xl mx-auto`}>
                 We're committed to providing the best travel experience for all our customers
               </p>
             </div>
@@ -323,7 +334,7 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 mt-auto">
+      <footer className={`${isDark ? 'bg-gray-900' : 'bg-gray-900'} text-white py-12 mt-auto`}>
         <div className="container px-4 md:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div>

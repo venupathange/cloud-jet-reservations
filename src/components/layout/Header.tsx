@@ -16,11 +16,6 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 /**
  * Header component with navigation and user authentication status
- * 
- * BACKEND INTEGRATION NOTE:
- * - This component displays user information from JWT token
- * - Avatar and user display name come from profile API
- * - Authentication status is determined by presence of valid JWT token
  */
 export default function Header() {
   const { user, userProfile, logout, isAuthenticated } = useAuth();
@@ -29,15 +24,12 @@ export default function Header() {
   const handleHomeClick = (e) => {
     e.preventDefault();
     navigate('/');
+    // Ensure we scroll to the top of the page
+    window.scrollTo(0, 0);
   };
 
   /**
    * Generate avatar fallback from email or display name
-   * 
-   * BACKEND INTEGRATION NOTE:
-   * - Consider fetching user avatar from backend API
-   * - Implement proper image caching for avatars
-   * - Handle loading states while fetching user data
    */
   const getAvatarFallback = () => {
     if (!userProfile) return 'U';
@@ -117,7 +109,7 @@ export default function Header() {
               </Link>
             </div>
           )}
-          <button className="md:hidden">
+          <button className="md:hidden" aria-label="Menu">
             <Menu className="h-6 w-6" />
           </button>
         </div>
