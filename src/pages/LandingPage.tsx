@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plane, CreditCard, Calendar, MessageSquare, Shield, CheckCircle2, Users, Globe, Heart } from "lucide-react";
 import Header from "@/components/layout/Header";
-import SearchBar from "@/components/search/SearchBar";
+import FlightSearchForm from "@/components/search/FlightSearchForm";
 import { useTheme } from "@/context/ThemeContext";
 
 export default function LandingPage() {
@@ -32,51 +32,10 @@ export default function LandingPage() {
               <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} md:text-xl max-w-lg`}>
                 Your journey begins with us. Explore our wide range of flights and enjoy a seamless booking experience with the best airfares in India.
               </p>
-              
-              {/* Search Bar integration */}
-              <div className="my-8">
-                <SearchBar variant="hero" />
-              </div>
-              
-              <div className="flex flex-col gap-3 min-[400px]:flex-row">
-                <Link to="/login">
-                  <Button className="bg-airline-blue hover:bg-airline-navy text-lg px-8 py-6">
-                    Start Booking
-                  </Button>
-                </Link>
-                <Link to="/register">
-                  <Button variant={isDark ? "outline" : "outline"} className={`text-lg px-8 py-6 ${isDark ? 'border-gray-400 hover:bg-gray-800' : ''}`}>Create an Account</Button>
-                </Link>
-              </div>
             </div>
             <div className="flex items-center justify-center relative">
-              <img 
-                src="https://images.unsplash.com/photo-1559367183-975d410de28e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" 
-                alt="Cloud Jet airplane" 
-                className="rounded-2xl shadow-2xl w-full max-w-lg mx-auto object-cover animate-float relative z-10" 
-              />
-              <div className={`absolute -bottom-6 -left-6 ${isDark ? 'bg-gray-800' : 'bg-white'} p-4 rounded-xl shadow-lg w-48 hidden md:block z-20`}>
-                <div className="flex items-center">
-                  <div className={`${isDark ? 'bg-green-900/50' : 'bg-green-100'} p-2 rounded-full`}>
-                    <CheckCircle2 className={`h-8 w-8 ${isDark ? 'text-green-400' : 'text-green-600'}`} />
-                  </div>
-                  <div className="ml-3">
-                    <p className="font-bold">Trusted</p>
-                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>By 5+ Million Indians</p>
-                  </div>
-                </div>
-              </div>
-              <div className={`absolute -top-6 -right-6 ${isDark ? 'bg-gray-800' : 'bg-white'} p-4 rounded-xl shadow-lg w-48 hidden md:block z-20`}>
-                <div className="flex items-center">
-                  <div className={`${isDark ? 'bg-blue-900/50' : 'bg-blue-100'} p-2 rounded-full`}>
-                    <Shield className={`h-8 w-8 ${isDark ? 'text-blue-400' : 'text-blue-600'}`} />
-                  </div>
-                  <div className="ml-3">
-                    <p className="font-bold">Secure</p>
-                    <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>100% Safe Booking</p>
-                  </div>
-                </div>
-              </div>
+              {/* Replaced SearchBar with FlightSearchForm */}
+              <FlightSearchForm variant="hero" />
             </div>
           </div>
         </div>
@@ -166,7 +125,6 @@ export default function LandingPage() {
                 Discover our most sought-after flight destinations across India and international locations
               </p>
             </div>
-          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="relative group overflow-hidden rounded-2xl">

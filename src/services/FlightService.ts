@@ -11,8 +11,12 @@ export const useFlightService = () => {
   
   /**
    * Search for flights with optional filters
+   * @param from Source location (required)
+   * @param to Destination location (optional)
+   * @param date Travel date (optional)
+   * @param travelClass Travel class (optional)
    */
-  const searchFlights = (from?: string, to?: string, date?: string) => {
+  const searchFlights = (from?: string, to?: string, date?: string, travelClass?: string) => {
     return flightLogic.getAllFlights(from, to, date);
   };
   
