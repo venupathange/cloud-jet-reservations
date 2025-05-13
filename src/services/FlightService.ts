@@ -17,7 +17,8 @@ export const useFlightService = () => {
    * @param travelClass Travel class (optional)
    */
   const searchFlights = (from: string, to?: string, date?: string, travelClass?: string) => {
-    return flightLogic.getAllFlights(from, to, date, travelClass);
+    // Pass only the parameters that FlightLogic.getAllFlights accepts
+    return flightLogic.getAllFlights(from, to, date);
   };
   
   /**
