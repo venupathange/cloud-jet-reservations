@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Plane, CreditCard, Calendar, MessageSquare, Shield, CheckCircle2, Users, Globe, Heart } from "lucide-react";
@@ -125,6 +126,7 @@ export default function LandingPage() {
                 Discover our most sought-after flight destinations across India and international locations
               </p>
             </div>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="relative group overflow-hidden rounded-2xl">
